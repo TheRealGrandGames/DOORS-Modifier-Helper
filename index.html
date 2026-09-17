@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DOORS Modifiers UI</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background-color: #080406;
+      color: #f3e5d8;
+      user-select: none;
+    }
+
+    .font-doors-title {
+      font-family: 'Oswald', 'Fredoka', sans-serif;
+      letter-spacing: 0.5px;
+    }
+
+    /* Custom scrollbar matching DOORS theme */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #12070a;
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #381d15;
+      border-radius: 8px;
+      border: 1px solid #522d20;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #522d20;
+    }
+
+    /* DOORS Modal Container Glow & Styling */
+    .doors-modal {
+      background: linear-gradient(180deg, #180a0e 0%, #0d0407 100%);
+      border: 3px solid #db8d92;
+      box-shadow: 0 0 30px rgba(219, 141, 146, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.85);
+      border-radius: 24px;
+    }
+
+    /* Top Active Card Styling - dynamic background & border */
+    .top-detail-card {
+      border-width: 3px;
+      border-style: solid;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.7);
+      border-radius: 20px;
+      height: 165px;
+      min-height: 165px;
+      max-height: 165px;
+      box-sizing: border-box;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* Modifier Row Capsule - fixed 3px border to prevent layout shift */
+    .modifier-row {
+      border-width: 3px;
+      border-style: solid;
+      opacity: 0.5;
+      transition: opacity 0.15s ease;
+    }
+
+    /* Selected Modifier Capsule Highlights */
+    .modifier-row.selected {
+      opacity: 1;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+    }
+
+    .group-bracket-wrapper {
+      position: relative;
+      padding-left: 18px;
+      margin-left: 2px;
+    }
+
+    .group-bracket-wrapper::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 12px;
+      border-left: 5px solid var(--bracket-color, #604337);
+      border-top: 5px solid var(--bracket-color, #604337);
+      border-bottom: 5px solid var(--bracket-color, #604337);
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+      pointer-events: none;
+      transition: border-color 0.2s ease;
+    }
+
+    /* Positive Knob Badge */
+    .knob-badge-positive {
+      background-color: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+    }
+
+    /* Negative Knob Badge */
+    .knob-badge-negative {
+      background-color: rgba(185, 28, 28, 0.85);
+      border: 1px solid rgba(239, 68, 68, 0.8);
+      color: #ffffff;
+      box-shadow: 0 0 8px rgba(185, 28, 28, 0.4);
+    }
+
+    /* Text Glow Utilities */
+    .text-glow-yellow {
+      text-shadow: 0 0 10px rgba(255, 220, 100, 0.35);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-3 sm:p-6 overflow-x-hidden">
+
+  <header class="w-full max-w-5xl flex flex-wrap items-center justify-between gap-3 mb-5 px-2">
+    <div class="flex items-center gap-3">
+      <img src="https://static.wikitide.net/doorswiki/thumb/a/a3/Modifiers_icon.png/300px-Modifiers_icon.png" class="w-10 sm:w-11 h-10 sm:h-11 object-contain drop-shadow-md" alt="DOORS Modifiers Icon" />
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold tracking-wide text-amber-100 font-doors-title uppercase">DOORS Modifiers</h1>
+        <p class="text-xs text-amber-200/60">Select and inspect DOORS game modifiers</p>
+      </div>
+    </div>
+
+    <!-- Actions: Presets Pop-up Trigger & Clear All Button -->
+    <div class="flex items-center gap-2">
+      <button onclick="togglePresetModal(true)" class="px-3.5 py-1.5 bg-amber-950 hover:bg-amber-900 border border-amber-700/70 rounded-xl text-xs sm:text-sm font-semibold text-amber-200 transition shadow flex items-center gap-1.5">
+        Presets ▾
+      </button>
+      <button onclick="clearAllSelections()" class="px-3.5 py-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl text-xs sm:text-sm font-semibold text-neutral-300 transition shadow flex items-center gap-1.5">
+        Clear All
+      </button>
+    </div>
+  </header>
+
+  <main class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+    <!-- Left Column: Replica DOORS Selector Modal (7 Cols on desktop) -->
+    <div class="lg:col-span-7 flex justify-center">
+      <div class="doors-modal w-full max-w-md p-4 sm:p-5 flex flex-col gap-3 relative">
+        
+        <!-- Top Detail / Active Preview Card -->
+        <div id="topDetailCard" class="top-detail-card p-3.5 flex flex-col items-center justify-between text-center transition-all duration-150 overflow-hidden">
+          <!-- Dynamically populated by JS -->
+        </div>
+
+        <!-- Scrollable Modifiers List Container -->
+        <div id="modifiersList" class="flex flex-col gap-2 max-h-[460px] overflow-y-auto pr-1 my-1">
+          <!-- Dynamically populated by JS -->
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Column: Live Run Summary & Active Restrictions Panel -->
+    <div class="lg:col-span-5 flex flex-col gap-4">
+      
+      <!-- Live Configuration Multiplier & Restrictions Summary -->
+      <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+        <h2 class="text-lg font-bold text-amber-300 flex items-center gap-2 border-b border-stone-800 pb-2.5 font-doors-title tracking-wide uppercase">
+          Modifiers Summary
+        </h2>
+
+        <!-- Total Knobs Multiplier Display -->
+        <div class="flex items-center justify-between bg-stone-950/80 p-3.5 rounded-xl border border-amber-900/30">
+          <span class="text-sm font-semibold text-stone-300">Total Knob Multiplier:</span>
+          <div id="summaryKnobTotal" class="text-xl font-bold text-amber-400 flex items-center gap-2">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Active Restrictions Status Checklist -->
+        <div class="space-y-2">
+          <span class="text-xs font-semibold uppercase tracking-wider text-stone-400">Game Restrictions</span>
+          
+          <div id="restrictionRift" class="flex items-center justify-between p-2.5 rounded-xl border text-xs sm:text-sm font-medium transition">
+            <span class="flex items-center gap-2">
+              <img id="iconRiftStatus" src="https://static.wikitide.net/doorswiki/4/4f/No_Rift_icon.svg" class="w-6 h-6 object-contain" alt="Rift Icon" />
+              <span>Rift Usage</span>
+            </span>
+            <span id="badgeRift" class="px-2.5 py-0.5 rounded-lg text-xs font-bold">Enabled</span>
+          </div>
+
+          <div id="restrictionProgress" class="flex items-center justify-between p-2.5 rounded-xl border text-xs sm:text-sm font-medium transition">
+            <span class="flex items-center gap-2">
+              <img id="iconProgressStatus" src="https://static.wikitide.net/doorswiki/2/29/No_Progress_icon.svg" class="w-6 h-6 object-contain" alt="Progress Icon" />
+              <span>Badges & Progress</span>
+            </span>
+            <span id="badgeProgress" class="px-2.5 py-0.5 rounded-lg text-xs font-bold">Enabled</span>
+          </div>
+
+          <div id="restrictionKnobs" class="flex items-center justify-between p-2.5 rounded-xl border text-xs sm:text-sm font-medium transition">
+            <span class="flex items-center gap-2">
+              <img id="iconKnobsStatus" src="https://static.wikitide.net/doorswiki/d/dd/No_Knobs_icon.svg" class="w-6 h-6 object-contain" alt="Knobs Icon" />
+              <span>Knob Collection</span>
+            </span>
+            <span id="badgeKnobs" class="px-2.5 py-0.5 rounded-lg text-xs font-bold">Enabled</span>
+          </div>
+        </div>
+
+        <!-- Active Selected Modifiers Chips -->
+        <div>
+          <div class="flex items-center justify-between text-xs text-stone-400 mb-2">
+            <span>Selected Modifiers:</span>
+            <span id="selectedCount" class="font-bold text-amber-300">0</span>
+          </div>
+          <div id="selectedChipsList" class="flex flex-wrap gap-1.5 max-h-[140px] overflow-y-auto p-1">
+            <!-- Selected chips rendered by JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <div id="presetModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="doors-modal w-full max-w-sm p-5 flex flex-col gap-3 text-center shadow-2xl relative max-h-[85vh]">
+      <div class="flex items-center justify-between border-b border-amber-900/40 pb-2">
+        <h3 class="text-xl font-bold font-doors-title text-amber-200 uppercase tracking-wide flex items-center gap-2">
+          Select Preset
+        </h3>
+        <button onclick="togglePresetModal(false)" class="text-stone-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+
+      <p class="text-xs text-amber-200/70">Choose a pre-configured set of DOORS modifiers:</p>
+
+      <!-- Scrollable Presets Container -->
+      <div id="presetsList" class="flex flex-col gap-2.5 my-1 max-h-[360px] overflow-y-auto pr-1">
+        <!-- Dynamically populated by JS from PRESETS array -->
+      </div>
+
+      <button onclick="togglePresetModal(false)" class="mt-1 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-semibold">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const ICONS = {
+      knob: "https://static.wikitide.net/doorswiki/thumb/2/2f/Knobs_icon.png/35px-Knobs_icon.png",
+      noKnobs: "https://static.wikitide.net/doorswiki/d/dd/No_Knobs_icon.svg",
+      noRift: "https://static.wikitide.net/doorswiki/4/4f/No_Rift_icon.svg",
+      noProgress: "https://static.wikitide.net/doorswiki/2/29/No_Progress_icon.svg"
+    };
+
+    const INITIAL_PRESETS = [
+      {
+        id: "hotel_hell",
+        name: "Hotel Hell",
+        knobText: "+150% Knobs",
+        styleClass: "bg-red-950/80 hover:bg-red-900 border-red-800/80 text-red-200",
+        badgeClass: "bg-red-900/60 text-red-300",
+        description: "Enables all hard modifiers alongside Hotel Hell for maximum challenge.",
+        modifierIds: [
+          "no_laughing_matter", "dripped_out", "infested", "bug_problem",
+          "blitz_oh", "look_man", "vacuum_sealed", "make_haste", "malware",
+          "rugburn", "hotel_hell"
+        ]
+      },
+      {
+        id: "safe_run",
+        name: "Safe Run",
+        knobText: "-15% Knobs",
+        styleClass: "bg-emerald-950/80 hover:bg-emerald-900 border-emerald-800/80 text-emerald-200",
+        badgeClass: "bg-emerald-900/60 text-emerald-300",
+        description: "Easier gameplay with boosted coin yields at Jeff's Shop expense.",
+        modifierIds: ["el_goblino_payday"]
+      },
+      {
+        id: "spider_fever",
+        name: "Bug Infestation",
+        knobText: "+10% Knobs",
+        styleClass: "bg-amber-950/80 hover:bg-amber-900 border-amber-800/80 text-amber-200",
+        badgeClass: "bg-amber-900/60 text-amber-300",
+        description: "Forces high Timothy spider spawns across drawers.",
+        modifierIds: ["bug_problem"]
+      }
+    ];
+
+    let presets = JSON.parse(JSON.stringify(INITIAL_PRESETS));
+
+    /**
+     * Darkens a hex color by a factor (0.0 = black, 1.0 = original color)
+     */
+    function darkenColor(hex, factor = 0.22) {
+      hex = hex.replace('#', '');
+      if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+      }
+      const num = parseInt(hex, 16);
+      let r = Math.round(((num >> 16) & 255) * factor);
+      let g = Math.round(((num >> 8) & 255) * factor);
+      let b = Math.round((num & 255) * factor);
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    /**
+     * Blends a color toward white to generate a lighter text shade
+     */
+    function getLighterTextColor(hex, lightness = 0.4) {
+      hex = hex.replace('#', '');
+      if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+      }
+      const num = parseInt(hex, 16);
+      let r = (num >> 16) & 255;
+      let g = (num >> 8) & 255;
+      let b = num & 255;
+      
+      r = Math.min(255, Math.round(r + (255 - r) * lightness));
+      g = Math.min(255, Math.round(g + (255 - g) * lightness));
+      b = Math.min(255, Math.round(b + (255 - b) * lightness));
+      
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    /* MODIFIERS DATA CONFIGURATION */
+    const INITIAL_MODIFIERS = [
+      {
+        id: "no_laughing_matter",
+        name: "No Laughing Matter",
+        description: "Giggle appears more frequently and spawns in unexpected hiding spots.",
+        color: "#fde047",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "dripped_out",
+        name: "Dripped Out",
+        description: "Screech sports a fancy stylish hat. Doesn't alter gameplay mechanics.",
+        color: "#e2e8f0",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "infested",
+        name: "Infested",
+        description: "Timothy spiders spawn significantly more frequently inside drawers.",
+        color: "#9ca3af",
+        knobPercent: 5,
+        groupId: "spider_group",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "bug_problem",
+        name: "Bug Problem",
+        description: "Timothy spiders spawn in almost every single drawer and inflict extra damage.",
+        color: "#f59e0b",
+        knobPercent: 10,
+        groupId: "spider_group",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "blitz_oh",
+        name: "Blitz, Oh",
+        description: "Blitz from The Backdoor replaces Rush completely and attacks much faster.",
+        color: "#fde047",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "look_man",
+        name: "Look, Man",
+        description: "The Lookman from The Backdoor has a chance to appear.",
+        color: "#fde047",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "vacuum_sealed",
+        name: "Vacuum Sealed",
+        description: "Vacuum entities linger in tight hallway passages.",
+        color: "#38bdf8",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "make_haste",
+        name: "Make Haste",
+        description: "Haste attacks swiftly if you stall or linger too long in rooms.",
+        color: "#f97316",
+        knobPercent: 25,
+        groupId: null,
+        disableRift: false,
+        disableProgress: true,
+        disableKnobs: false
+      },
+      {
+        id: "el_goblino_payday",
+        name: "El Goblino's Payday",
+        description: "Gold coin yields are doubled, but items in Jeff's Shop are far more expensive.",
+        color: "#4ade80",
+        knobPercent: -15,
+        groupId: null,
+        disableRift: true,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "malware",
+        name: "Malware",
+        description: "Glitch triggers more aggressively and scrambles room door numbers.",
+        color: "#c084fc",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "rugburn",
+        name: "Rugburn",
+        description: "Sprinting rapidly drains stamina and deals minor trip damage.",
+        color: "#fb7185",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "hotel_hell",
+        name: "Hotel Hell",
+        description: "Ultimate challenge modifier. Disables the Rift, disables progress, and disables knob collection.",
+        color: "#f87171",
+        knobPercent: -50,
+        groupId: null,
+        disableRift: true,
+        disableProgress: true,
+        disableKnobs: true
+      }
+    ];
+
+    let modifiers = JSON.parse(JSON.stringify(INITIAL_MODIFIERS));
+    let selectedIds = new Set();
+    let hoverId = null;
+    let hoverTimeout = null;
+
+    function onModifierHover(id) {
+      if (hoverTimeout) {
+        clearTimeout(hoverTimeout);
+        hoverTimeout = null;
+      }
+      hoverId = id;
+      renderTopDetailCard();
+    }
+
+    function onModifierLeave() {
+      if (hoverTimeout) clearTimeout(hoverTimeout);
+      // Wait 1.8s before clearing hover state back to default idle screen
+      hoverTimeout = setTimeout(() => {
+        hoverId = null;
+        renderTopDetailCard();
+      }, 1800);
+    }
+
+    function renderApp() {
+      renderTopDetailCard();
+      renderModifiersList();
+      renderSummaryPanel();
+    }
+
+    /**
+     * Renders top detail preview card with FIXED container height and idle fallback state.
+     */
+    function renderTopDetailCard() {
+      const container = document.getElementById("topDetailCard");
+      const mod = modifiers.find(m => m.id === hoverId);
+
+      // DEFAULT IDLE STATE when nothing is hovered
+      if (!mod) {
+        container.style.backgroundColor = '#25140b';
+        container.style.borderColor = '#482918';
+
+        container.innerHTML = `
+          <div class="w-full flex flex-col items-center justify-center my-auto px-2">
+            <h3 class="font-bold font-doors-title text-2xl sm:text-3xl tracking-wide text-glow-yellow mb-1 text-amber-300">
+              MODIFIERS
+            </h3>
+            <p class="max-w-xs sm:max-w-md text-xs sm:text-sm font-medium text-amber-100/80 leading-snug">
+              Add challenges to your run for extra rewards and achievements!
+            </p>
+          </div>
+          <div class="mt-1 flex items-center justify-center gap-2 pb-0.5">
+            <div class="px-3 py-0.5 rounded-full text-xs font-semibold bg-amber-950/60 border border-amber-800/40 text-amber-200/70">
+              Hover over a modifier to preview
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // ACTIVE HOVERED MODIFIER STATE
+      const baseColor = mod.color || '#fde047';
+      const cardBg = darkenColor(baseColor, 0.22);
+      const cardBorder = baseColor;
+      const lighterText = getLighterTextColor(baseColor, 0.5);
+
+      container.style.backgroundColor = cardBg;
+      container.style.borderColor = cardBorder;
+
+      const isNegative = mod.knobPercent < 0;
+      const knobText = `${mod.knobPercent >= 0 ? '+' : ''}${mod.knobPercent}%`;
+      const badgeClass = isNegative ? 'knob-badge-negative' : 'knob-badge-positive';
+
+      const nameLength = mod.name.length;
+      const descLength = mod.description.length;
+
+      let titleSizeClass = "text-2xl sm:text-3xl";
+      if (nameLength > 20) titleSizeClass = "text-lg sm:text-xl";
+      else if (nameLength > 14) titleSizeClass = "text-xl sm:text-2xl";
+
+      let descSizeClass = "text-xs sm:text-sm";
+      if (descLength > 80) descSizeClass = "text-[11px] sm:text-xs leading-tight";
+
+      container.innerHTML = `
+        <div class="w-full flex flex-col items-center justify-center my-auto px-1">
+          <h3 class="font-bold font-doors-title tracking-wide text-glow-yellow mb-0.5 transition-all ${titleSizeClass}" style="color: ${baseColor}">
+            ${mod.name}
+          </h3>
+          <p class="max-w-xs sm:max-w-md font-medium transition-all ${descSizeClass}" style="color: ${lighterText}">
+            ${mod.description}
+          </p>
+        </div>
+
+        <div class="mt-1 flex flex-wrap items-center justify-center gap-2 pb-0.5">
+          <div class="px-3 py-1 rounded-full text-sm sm:text-base font-bold flex items-center gap-2 shadow-md ${badgeClass}">
+            <img src="${ICONS.knob}" class="w-6 h-6 object-contain" alt="Knobs" />
+            <span>${knobText}</span>
+          </div>
+
+          ${mod.disableRift ? `
+            <div class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold font-doors-title flex items-center gap-2 bg-[#6b1d24] border border-[#a3323c] text-[#fca5a5] shadow-sm uppercase tracking-wide">
+              <img src="${ICONS.noRift}" class="w-7 h-7 object-contain" alt="No Rift" />
+              <span>NO RIFT</span>
+            </div>
+          ` : ''}
+
+          ${mod.disableProgress ? `
+            <div class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold font-doors-title flex items-center gap-2 bg-[#6b1d24] border border-[#a3323c] text-[#fca5a5] shadow-sm uppercase tracking-wide">
+              <img src="${ICONS.noProgress}" class="w-7 h-7 object-contain" alt="No Progress" />
+              <span>NO PROGRESS</span>
+            </div>
+          ` : ''}
+
+          ${mod.disableKnobs ? `
+            <div class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold font-doors-title flex items-center gap-2 bg-[#6b1d24] border border-[#a3323c] text-[#fca5a5] shadow-sm uppercase tracking-wide">
+              <img src="${ICONS.noKnobs}" class="w-7 h-7 object-contain" alt="No Knobs" />
+              <span>NO KNOBS</span>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderModifiersList() {
+      const container = document.getElementById("modifiersList");
+      container.innerHTML = "";
+
+      let i = 0;
+      while (i < modifiers.length) {
+        const currentMod = modifiers[i];
+
+        if (currentMod.groupId) {
+          const groupGroupId = currentMod.groupId;
+          const groupItems = [];
+
+          while (i < modifiers.length && modifiers[i].groupId === groupGroupId) {
+            groupItems.push(modifiers[i]);
+            i++;
+          }
+
+          // Bracket inherits selected modifier color if selected in group
+          const selectedInGroup = groupItems.find(m => selectedIds.has(m.id));
+          const bracketColor = selectedInGroup ? selectedInGroup.color : '#604337';
+
+          const bracketWrapper = document.createElement("div");
+          bracketWrapper.className = "group-bracket-wrapper flex flex-col gap-2 my-0.5";
+          bracketWrapper.style.setProperty('--bracket-color', bracketColor);
+
+          groupItems.forEach(mod => {
+            bracketWrapper.appendChild(createModifierRowElement(mod));
+          });
+
+          container.appendChild(bracketWrapper);
+        } else {
+          container.appendChild(createModifierRowElement(currentMod));
+          i++;
+        }
+      }
+    }
+
+    function createModifierRowElement(mod) {
+      const isSelected = selectedIds.has(mod.id);
+      const isNegative = mod.knobPercent < 0;
+      const knobText = `${mod.knobPercent >= 0 ? '+' : ''}${mod.knobPercent}%`;
+      const badgeClass = isNegative ? 'knob-badge-negative' : 'knob-badge-positive';
+
+      const baseColor = mod.color || '#fde047';
+      const rowBg = darkenColor(baseColor, 0.22);
+      const rowBorder = baseColor;
+      const textColor = baseColor;
+
+      const rowEl = document.createElement("div");
+      rowEl.className = `modifier-row w-full flex items-center justify-between px-4 py-2.5 rounded-full cursor-pointer select-none transition-all ${isSelected ? 'selected' : ''}`;
+      rowEl.id = `mod-row-${mod.id}`;
+      rowEl.style.backgroundColor = rowBg;
+      rowEl.style.borderColor = rowBorder;
+
+      rowEl.onclick = () => toggleModifier(mod.id);
+      rowEl.onmouseenter = () => onModifierHover(mod.id);
+      rowEl.onmouseleave = () => onModifierLeave();
+
+      rowEl.innerHTML = `
+        <div class="flex items-center gap-2 pl-0.5">
+          <span class="font-bold text-base sm:text-lg font-doors-title tracking-wide transition-colors" style="color: ${textColor}">
+            ${mod.name}
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          ${mod.disableRift ? `
+            <img src="${ICONS.noRift}" class="w-5 sm:w-6 h-5 sm:h-6 object-contain" title="Disables Rift" />
+          ` : ''}
+          ${mod.disableProgress ? `
+            <img src="${ICONS.noProgress}" class="w-5 sm:w-6 h-5 sm:h-6 object-contain" title="Disables Progress" />
+          ` : ''}
+          ${mod.disableKnobs ? `
+            <img src="${ICONS.noKnobs}" class="w-5 sm:w-6 h-5 sm:h-6 object-contain" title="Disables Knobs" />
+          ` : ''}
+
+          <div class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1.5 ${badgeClass}">
+            <img src="${ICONS.knob}" class="w-5 h-5 object-contain" alt="Knob" />
+            <span>${knobText}</span>
+          </div>
+        </div>
+      `;
+
+      return rowEl;
+    }
+
+    function toggleModifier(id) {
+      const targetMod = modifiers.find(m => m.id === id);
+      if (!targetMod) return;
+
+      if (selectedIds.has(id)) {
+        selectedIds.delete(id);
+      } else {
+        if (targetMod.groupId) {
+          modifiers.forEach(m => {
+            if (m.groupId === targetMod.groupId && selectedIds.has(m.id)) {
+              selectedIds.delete(m.id);
+            }
+          });
+        }
+        selectedIds.add(id);
+      }
+
+      renderApp();
+    }
+
+    function renderSummaryPanel() {
+      const selectedMods = modifiers.filter(m => selectedIds.has(m.id));
+
+      const totalKnobs = selectedMods.reduce((sum, m) => sum + (m.knobPercent || 0), 0);
+      const summaryKnobEl = document.getElementById("summaryKnobTotal");
+      const isTotalNegative = totalKnobs < 0;
+      
+      summaryKnobEl.className = `text-xl font-bold flex items-center gap-2 ${isTotalNegative ? 'text-red-400' : 'text-amber-400'}`;
+      summaryKnobEl.innerHTML = `
+        <img src="${ICONS.knob}" class="w-6 h-6 object-contain" alt="Knobs" />
+        <span>${totalKnobs >= 0 ? '+' : ''}${totalKnobs}%</span>
+      `;
+
+      const isRiftDisabled = selectedMods.some(m => m.disableRift);
+      const isProgressDisabled = selectedMods.some(m => m.disableProgress);
+      const isKnobsDisabled = selectedMods.some(m => m.disableKnobs);
+
+      updateRestrictionBadge("Rift", isRiftDisabled, "Disabled", "Enabled");
+      updateRestrictionBadge("Progress", isProgressDisabled, "Disabled", "Enabled");
+      updateRestrictionBadge("Knobs", isKnobsDisabled, "Disabled", "Enabled");
+
+      document.getElementById("selectedCount").textContent = selectedMods.length;
+      const chipsContainer = document.getElementById("selectedChipsList");
+
+      if (selectedMods.length === 0) {
+        chipsContainer.innerHTML = `<span class="text-xs text-stone-500 italic py-1">No modifiers selected. Click any modifier on the left to select!</span>`;
+      } else {
+        chipsContainer.innerHTML = selectedMods.map(m => `
+          <span onclick="toggleModifier('${m.id}')" class="px-2.5 py-1 bg-amber-950/80 border border-amber-700/60 rounded-lg text-xs font-semibold text-amber-200 cursor-pointer hover:bg-red-900/60 hover:border-red-600 transition flex items-center gap-1.5 group shadow-sm">
+            <span>${m.name}</span>
+            <span class="text-amber-400/60 group-hover:text-red-200 font-bold">✕</span>
+          </span>
+        `).join('');
+      }
+    }
+
+    function updateRestrictionBadge(type, isDisabled, disabledText, enabledText) {
+      const box = document.getElementById(`restriction${type}`);
+      const badge = document.getElementById(`badge${type}`);
+
+      if (isDisabled) {
+        box.className = "flex items-center justify-between p-2.5 rounded-xl text-xs sm:text-sm font-medium bg-red-950/60 border border-red-800/80 text-red-200";
+        badge.className = "px-2.5 py-0.5 rounded-lg text-xs font-bold bg-red-800 text-red-100 shadow-sm";
+        badge.textContent = `🚫 ${disabledText}`;
+      } else {
+        box.className = "flex items-center justify-between p-2.5 rounded-xl text-xs sm:text-sm font-medium bg-stone-950/60 border border-stone-800 text-stone-300";
+        badge.className = "px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-800/60";
+        badge.textContent = `✓ ${enabledText}`;
+      }
+    }
+
+    function renderPresetsModal() {
+      const container = document.getElementById("presetsList");
+      if (!container) return;
+      container.innerHTML = presets.map(p => `
+        <button onclick="applyPreset('${p.id}')" class="w-full py-3 px-4 ${p.styleClass} border border-amber-800/60 rounded-xl text-sm font-semibold transition flex flex-col gap-1 text-left shadow group">
+          <div class="flex items-center justify-between w-full">
+            <span class="font-bold flex items-center gap-2 font-doors-title text-base uppercase tracking-wide">${p.name}</span>
+            <span class="text-xs font-bold ${p.badgeClass} px-2.5 py-0.5 rounded">${p.knobText}</span>
+          </div>
+          ${p.description ? `<span class="text-[11px] opacity-75 font-normal leading-tight">${p.description}</span>` : ''}
+        </button>
+      `).join('');
+    }
+
+    function togglePresetModal(show) {
+      const modal = document.getElementById("presetModal");
+      if (show) {
+        renderPresetsModal();
+        modal.classList.remove("hidden");
+      } else {
+        modal.classList.add("hidden");
+      }
+    }
+
+    function applyPreset(presetId) {
+      selectedIds.clear();
+      const preset = presets.find(p => p.id === presetId);
+      if (preset && Array.isArray(preset.modifierIds)) {
+        preset.modifierIds.forEach(id => {
+          if (modifiers.some(m => m.id === id)) {
+            selectedIds.add(id);
+          }
+        });
+      }
+      togglePresetModal(false);
+      renderApp();
+    }
+
+    function clearAllSelections() {
+      selectedIds.clear();
+      renderApp();
+    }
+
+    window.onload = function() {
+      renderApp();
+    };
+  </script>
+</body>
+</html>
