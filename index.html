@@ -552,6 +552,20 @@
         requirement: "Requires 'Not Five Stars'"
       },
 
+      // CUSTOM MODIFIER START
+      {
+        id: "customidea:item_infinite",
+        name: "One For All",
+        description: "All items can be picked up by everyone.",
+        colorTemplate: "helpful2",
+        knobPercent: -75,
+        groupId: "items",
+        disableRift: true,
+        disableProgress: true,
+        disableKnobs: false,
+        customModifierIdea: true
+      },
+      // CUSTOM MODIFIER END
       {
         id: "item_spawn_more",
         name: "More Stuff",
@@ -1191,6 +1205,248 @@
         disableKnobs: false,
         requirement: "Requires 'Hotel Hell'"
       },
+
+      {
+        id: "dread",
+        name: "Run From It",
+        description: "Dread spawns in earlier.",
+        colorTemplate: "white",
+        knobPercent: 5,
+        groupId: "dread",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Dead Of Night'"
+      },
+      {
+        id: "dread_most",
+        name: "Destiny Still Arrives",
+        description: "Dread spawns in much earlier.",
+        colorTemplate: "white",
+        knobPercent: 10,
+        groupId: "dread",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'It's Not My Time'"
+      },
+
+      {
+        id: "giggle",
+        name: "Haha",
+        description: "Giggles can be found (more, if in The Mines).",
+        colorTemplate: "giggle",
+        knobPercent: 5,
+        groupId: "giggle",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Just A Prank'"
+      },
+      {
+        id: "giggle_more",
+        name: "Laughing Stock",
+        description: "Giggles are everywhere.",
+        colorTemplate: "giggle",
+        knobPercent: 10,
+        groupId: "giggle",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Helping Hand'"
+      },
+      {
+        id: "giggle_most",
+        name: "No Laughing Matter",
+        description: "Giggles are everywhere. They don't laugh.",
+        colorTemplate: "giggle",
+        knobPercent: 15,
+        groupId: "giggle",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Not Funny'"
+      },
+      {
+        id: "giggle_sunglasses",
+        name: "Dripped Out",
+        description: "Giggles cannot be affect by light sources anymore.",
+        colorTemplate: "giggle",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Not Funny'"
+      },
+
+      {
+        id: "gloombat",
+        name: "Infested",
+        description: "Gloombats can be found (more, if in The Mines).",
+        colorTemplate: "gloombat",
+        knobPercent: 5,
+        groupId: "gloombat",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'I Don't Believe My Eyes'"
+      },
+      {
+        id: "gloombat_more",
+        name: "Bug Problem",
+        description: "Gloombats spawn much more frequently.",
+        colorTemplate: "gloombat",
+        knobPercent: 10,
+        groupId: "gloombat",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Bug Bomb'"
+      },
+
+      {
+        id: "backdoor_rush",
+        name: "Blitz, Oh",
+        description: "Blitz from The Backdoor has a chance to attack.",
+        colorTemplate: "curious",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Other Way Around'"
+      },
+      {
+        id: "backdoor_lookman",
+        name: "Look, Man",
+        description: "The Lookman from The Backdoor has a chance to appear.",
+        colorTemplate: "curious",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Other Way Around'"
+      },
+      {
+        id: "backdoor_vacuum",
+        name: "Vacuum Sealed",
+        description: "Some doors will lead... nowhere (like in The Backdoor).",
+        colorTemplate: "curious",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Other Way Around'"
+      },
+      {
+        id: "backdoor_haste",
+        name: "Make Haste",
+        description: "The Backdoor's timer and levers will appear. Haste attacks if the timer hits 0.",
+        colorTemplate: "curious",
+        knobPercent: 25,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Other Way Around'"
+      },
+
+      // CUSTOM MODIFIER START
+      {
+        id: "customidea:archives_ransom",
+        name: "Malware",
+        description: "Ransom from The Archives has a chance to attack.",
+        colorTemplate: "curious",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Emergency Exit'",
+        customModifierIdea: true
+      },
+      {
+        id: "customidea:archives_bash",
+        name: "Rugburn",
+        description: "Bash from The Archives has a chance to attack.",
+        colorTemplate: "curious",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Emergency Exit'",
+        customModifierIdea: true
+      },
+      {
+        id: "customidea:archives_scribbles",
+        name: "Papercuts",
+        description: "Scribbles from The Archives has a chance to attack.",
+        colorTemplate: "curious",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Emergency Exit'",
+        customModifierIdea: true
+      },
+      {
+        id: "customidea:archives_drones",
+        name: "Overtime",
+        description: "Drones from The Archives have a chance to appear. Paper Planes periodically appear as loot.",
+        colorTemplate: "curious",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Emergency Exit'",
+        customModifierIdea: true
+      },
+      {
+        id: "customidea:archives_drone_stampede",
+        name: "Late For Work",
+        description: "The Hotel's clocks are replaced by clocks from The Archives. Drone Stampedes will appear.",
+        colorTemplate: "curious",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Emergency Exit'",
+        customModifierIdea: true
+      },
+      {
+        id: "customidea:archives_alma",
+        name: "Crybaby",
+        description: "Alma from The Archives has a random chance to attack.",
+        colorTemplate: "curious",
+        knobPercent: 15,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Emergency Exit'",
+        customModifierIdea: true
+      },
+      {
+        id: "customidea:archives_currents",
+        name: "Feel The Power",
+        description: "The Current hazard from The Archives has a random chance to appear in rooms.",
+        colorTemplate: "curious",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Emergency Exit'",
+        customModifierIdea: true
+      },
+      // CUSTOM MODIFIER END
     ];
 
     let modifiers = JSON.parse(JSON.stringify(INITIAL_MODIFIERS));
@@ -1202,6 +1458,13 @@
 
     function toggleCustomIdeas(enabled) {
       showCustomIdeas = enabled;
+      if (!showCustomIdeas) {
+        modifiers.forEach(m => {
+          if (!m.divider && m.customModifierIdea && selectedIds.has(m.id)) {
+            selectedIds.delete(m.id);
+          }
+        });
+      }
       renderApp();
     }
 
