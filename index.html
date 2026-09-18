@@ -156,7 +156,7 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-3 sm:p-6 overflow-x-hidden">
 
-  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-3 mb-5 px-2">
+  <header class="w-full max-w-7xl flex flex-wrap items-center justify-between gap-3 mb-5 px-2">
     <div class="flex items-center gap-3">
       <img src="https://static.wikitide.net/doorswiki/thumb/a/a3/Modifiers_icon.png/300px-Modifiers_icon.png" class="w-10 sm:w-11 h-10 sm:h-11 object-contain drop-shadow-md" alt="DOORS Modifiers Icon" />
       <div>
@@ -183,11 +183,11 @@
     </div>
   </header>
 
-  <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <main class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-    <!-- Left Column: Replica DOORS Selector Modal (7 Cols on desktop) -->
-    <div class="lg:col-span-7 flex justify-center">
-      <div class="doors-modal w-full max-w-xl p-4 sm:p-5 flex flex-col gap-3 relative">
+    <!-- Left Column: Replica DOORS Selector Modal (8 Cols on desktop) -->
+    <div class="lg:col-span-8 flex justify-center">
+      <div class="doors-modal w-full max-w-2xl sm:max-w-3xl p-4 sm:p-5 flex flex-col gap-3 relative">
         
         <!-- Top Detail / Active Preview Card -->
         <div id="topDetailCard" class="top-detail-card p-2.5 pt-2 flex flex-col items-center justify-between text-center transition-all duration-150 overflow-hidden">
@@ -203,24 +203,24 @@
     </div>
 
     <!-- Right Column: Requirement Lock Toggle & Live Run Summary -->
-    <div class="lg:col-span-5 flex flex-col gap-4">
+    <div class="lg:col-span-4 flex flex-col gap-4">
       
       <!-- Requirements Lock Toggle Panel -->
       <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 shadow-xl flex flex-col gap-3.5">
         
-        <h2 class="text-lg font-bold text-amber-300 flex items-center gap-2 border-b border-stone-800 pb-2 font-doors-title tracking-wide uppercase">
+        <h2 class="text-lg font-bold text-purple-300 flex items-center gap-2 border-b border-stone-800 pb-2 font-doors-title tracking-wide uppercase">
           Toggles
         </h2>
 
         <!-- Toggle Row 1: Enforce Requirements -->
         <div class="flex items-center justify-between gap-3">
           <div>
-            <h3 class="text-sm font-bold text-amber-200 font-doors-title uppercase tracking-wide">Enforce Requirements</h3>
+            <h3 class="text-sm font-bold text-purple-200 font-doors-title uppercase tracking-wide">Enforce Requirements</h3>
             <p class="text-xs text-stone-400">Show requirements & lock unmet modifiers</p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer shrink-0">
             <input type="checkbox" id="toggleRequirements" class="sr-only peer" onchange="toggleRequirementLock(this.checked)">
-            <div class="w-11 h-6 bg-stone-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-amber-400 after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-900 border border-amber-800/60"></div>
+            <div class="w-11 h-6 bg-stone-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-purple-400 after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-900 border border-purple-800/60"></div>
           </label>
         </div>
 
@@ -375,14 +375,14 @@
 
     const INITIAL_PRESETS = [
       {
-        id: "hotel_hell",
-        name: "Hotel Hell",
-        knobText: "+150% Knobs",
-        styleClass: "bg-red-950/80 hover:bg-red-900 border-red-800/80 text-red-200",
+        id: "preset_all_rush",
+        name: "Rushed",
+        knobText: "+35% Knobs",
+        styleClass: "bg-#bfbbd4-950/80 hover:bg-#bfbbd4-900 border-#bfbbd4-800/80 text-#bfbbd4-200",
         badgeClass: "bg-red-900/60 text-red-300",
-        description: "Hardcore challenge run targeting 150%+ modifier boost.",
+        description: "All Rush Modifiers are enabled for a harder experience.",
         modifierIds: [
-          "chaos_five"
+          "rush_more", "rush_faster", "rush_quiet", "rush_level_2"
         ]
       },
     ];
@@ -876,10 +876,9 @@
         colorTemplate: "danger2",
         knobPercent: 10,
         groupId: "entity_spawn",
-        disableRift: true,
-        disableProgress: true,
-        disableKnobs: false,
-        requirement: "Requires 'Not Five Stars'"
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
       },
       {
         id: "entities_most",
@@ -888,8 +887,8 @@
         colorTemplate: "danger3",
         knobPercent: 20,
         groupId: "entity_spawn",
-        disableRift: true,
-        disableProgress: true,
+        disableRift: false,
+        disableProgress: false,
         disableKnobs: false,
         requirement: "Requires 'Not Five Stars'"
       },
@@ -975,6 +974,222 @@
         disableProgress: false,
         disableKnobs: false,
         requirement: "Requires 'Outwitted'"
+      },
+
+      {
+        id: "screech_light",
+        name: "I'm Everywhere",
+        description: "Screech can attack in any room.",
+        colorTemplate: "screech",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "screech_fast",
+        name: "Think Fast",
+        description: "Screech will attack more and give less time to react.",
+        colorTemplate: "screech",
+        knobPercent: 5,
+        groupId: "screech_speed",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "screech_faster",
+        name: "Think Faster",
+        description: "Screech will attack much more and give even less time to react.",
+        colorTemplate: "screech",
+        knobPercent: 10,
+        groupId: "screech_speed",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'I Hate You'"
+      },
+
+      {
+        id: "timothy_less",
+        name: "Bug Spray",
+        description: "Timothy is nowhere to be found :(",
+        colorTemplate: "timothy",
+        knobPercent: -10,
+        groupId: "timothy",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "timothy_more",
+        name: "Itchy",
+        description: "Timothy will attack more often. Its bite can be fatal.",
+        colorTemplate: "timothy",
+        knobPercent: 5,
+        groupId: "timothy",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+
+      {
+        id: "eyes_more",
+        name: "Nosey",
+        description: "Eyes will spawn more.",
+        colorTemplate: "eyes",
+        knobPercent: 5,
+        groupId: "spawn_eyes",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "eyes_most",
+        name: "Always Watching",
+        description: "Eyes will always spawn.",
+        colorTemplate: "eyes",
+        knobPercent: 10,
+        groupId: "spawn_eyes",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'You Can't See Me'"
+      },
+      {
+        id: "eyes_twice",
+        name: "Seeing Double",
+        description: "Two sets of Eyes will always spawn.",
+        colorTemplate: "eyes",
+        knobPercent: 15,
+        groupId: "spawn_eyes",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+      {
+        id: "eyes_four",
+        name: "Four Eyes",
+        description: "Four sets of Eyes will always spawn.",
+        colorTemplate: "eyes",
+        knobPercent: 20,
+        groupId: "spawn_eyes",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Hotel Hell'"
+      },
+      {
+        id: "eyes_level_2",
+        name: "Every Angle",
+        description: "Eyes will teleport around the room.",
+        colorTemplate: "eyes",
+        knobPercent: 20,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'See You Soon'"
+      },
+
+      {
+        id: "figure_faster",
+        name: "Come Back Here",
+        description: "Figure is faster.",
+        colorTemplate: "figure",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'All Figured Out'"
+      },
+
+      {
+        id: "ambush_more",
+        name: "Back For Seconds",
+        description: "Ambush will attack more.",
+        colorTemplate: "ambush",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Unbound'"
+      },
+      {
+        id: "ambush_faster",
+        name: "Afterimage",
+        description: "Ambush will attack faster.",
+        colorTemplate: "ambush",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Unbound'"
+      },
+
+      {
+        id: "hide_time",
+        name: "Rent's Due",
+        description: "Hide will attack as fast as possible.",
+        colorTemplate: "hide",
+        knobPercent: 15,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "hide_level_2",
+        name: "New Roommate",
+        description: "Hide will reside in the last hiding spot you entered.",
+        colorTemplate: "hide",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'See You Soon'"
+      },
+
+      {
+        id: "snare_more",
+        name: "Watch Your Step",
+        description: "Snare occasionally spawns throughout the floor.",
+        colorTemplate: "snare",
+        knobPercent: 5,
+        groupId: "snare",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "snare_most",
+        name: "Are Those Pancakes?!",
+        description: "Snare spawns in multiples throughout the floor.",
+        colorTemplate: "snare",
+        knobPercent: 10,
+        groupId: "snare",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+      {
+        id: "snare_moster",
+        name: "I Love Pancakes!!!",
+        description: "There are too many Snares. Its attack can now be fatal.",
+        colorTemplate: "snare",
+        knobPercent: 15,
+        groupId: "snare",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Hotel Hell'"
       },
     ];
 
@@ -1113,10 +1328,13 @@
 
         // Handle Divider render
         if (item.divider) {
+          const hrWrapper = document.createElement("div");
+          hrWrapper.className = "pl-[22px] ml-[2px]";
           const hr = document.createElement("div");
           hr.className = "w-full my-2 border-b-4 rounded-full";
           hr.style.borderColor = "#604337";
-          container.appendChild(hr);
+          hrWrapper.appendChild(hr);
+          container.appendChild(hrWrapper);
           i++;
           continue;
         }
@@ -1164,8 +1382,11 @@
             container.appendChild(groupWrapper);
           }
         } else {
+          const singleWrapper = document.createElement("div");
+          singleWrapper.className = "pl-[22px] ml-[2px]";
           const rowEl = createModifierRowElement(mod);
-          container.appendChild(rowEl);
+          singleWrapper.appendChild(rowEl);
+          container.appendChild(singleWrapper);
           i++;
         }
       }
@@ -1310,6 +1531,11 @@
         </div>
 
         <div class="flex items-center gap-2.5">
+          ${(enforceRequirements && mod.requirement) ? `
+            <span class="text-[10px] sm:text-xs font-bold font-doors-title px-2 py-0.5 rounded bg-red-950/90 border border-red-700/80 text-red-200 uppercase tracking-wide truncate max-w-[180px] sm:max-w-[260px]" title="${mod.requirement}">
+              ${mod.requirement}
+            </span>
+          ` : ''}
           ${mod.disableKnobs ? `
             <img src="${ICONS.noKnobs}" class="w-6 h-6 object-contain" title="Disables Knobs" />
           ` : ''}
