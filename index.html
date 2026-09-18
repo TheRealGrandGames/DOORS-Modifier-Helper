@@ -152,13 +152,27 @@
     .text-glow-yellow {
       text-shadow: 0 0 10px rgba(255, 220, 100, 0.35);
     }
+
+    @keyframes swayText {
+      0% { transform: translate(0px, 0px) rotate(0deg); }
+      20% { transform: translate(-5px, 4px) rotate(-0.6deg); }
+      40% { transform: translate(6px, -3px) rotate(0.8deg); }
+      60% { transform: translate(-4px, -5px) rotate(-0.5deg); }
+      80% { transform: translate(5px, 3px) rotate(0.4deg); }
+      100% { transform: translate(0px, 0px) rotate(0deg); }
+    }
+
+    .swaying-text {
+      animation: swayText 4s ease-in-out infinite alternate;
+      will-change: transform;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-3 sm:p-6 overflow-x-hidden">
 
   <header class="w-full max-w-7xl flex flex-wrap items-center justify-between gap-3 mb-5 px-2">
     <div class="flex items-center gap-3">
-      <img src="https://static.wikitide.net/doorswiki/thumb/a/a3/Modifiers_icon.png/300px-Modifiers_icon.png" class="w-10 sm:w-11 h-10 sm:h-11 object-contain drop-shadow-md" alt="DOORS Modifiers Icon" />
+      <img src="https://static.wikitide.net/doorswiki/thumb/a/a3/Modifiers_icon.png/300px-Modifiers_icon.png" onclick="triggerEasterEgg()" class="w-10 sm:w-11 h-10 sm:h-11 object-contain drop-shadow-md" alt="DOORS Modifiers Icon" />
       <div>
         <h1 class="text-xl sm:text-2xl font-bold tracking-wide text-amber-100 font-doors-title uppercase">DOORS Modifier Helper</h1>
         <p class="text-xs text-amber-200/60">Select and inspect DOORS game modifiers</p>
@@ -321,6 +335,111 @@
   </div>
 
   <script>
+    const EASTER_EGG_CONFIG = {
+      // Colors
+      bgColor: "#0f0204",            // Dark red static background color
+      textColor: "#ff3b3b",          // Bright red text color
+      textGlowColor: "#8b0000",      // Red glow text shadow color
+
+      // Dialog lines played in sequence
+      dialog: [
+        "You shouldn't be messing with things that you're not supposed to...",
+        "Challenging me isn't a great idea...",
+        "I'm supposed to challenge YOU...",
+        "So get out before it's too late...",
+        "Bye..."
+      ]
+    };
+
+    let currentDialogIndex = 0;
+    let staticAnimFrame = null;
+
+    function triggerEasterEgg() {
+    currentDialogIndex = 0;
+    const overlay = document.getElementById("easterEggOverlay");
+    const textEl = document.getElementById("easterEggText");
+    const promptEl = document.getElementById("easterEggPrompt");
+
+    if (!overlay || !textEl) return;
+
+    overlay.style.backgroundColor = EASTER_EGG_CONFIG.bgColor;
+    textEl.style.color = EASTER_EGG_CONFIG.textColor;
+    textEl.style.textShadow = `0 0 20px ${EASTER_EGG_CONFIG.textGlowColor}, 0 0 40px ${EASTER_EGG_CONFIG.textGlowColor}`;
+    if (promptEl) promptEl.style.color = EASTER_EGG_CONFIG.textColor;
+
+    textEl.textContent = EASTER_EGG_CONFIG.dialog[0] || "";
+    overlay.classList.remove("hidden");
+
+    startStaticNoise();
+  }
+
+  function advanceEasterEggDialog() {
+    currentDialogIndex++;
+    const textEl = document.getElementById("easterEggText");
+
+    if (currentDialogIndex < EASTER_EGG_CONFIG.dialog.length) {
+      textEl.style.opacity = "0";
+      setTimeout(() => {
+        textEl.textContent = EASTER_EGG_CONFIG.dialog[currentDialogIndex];
+        textEl.style.opacity = "1";
+      }, 150);
+    } else {
+      closeEasterEgg();
+    }
+  }
+
+  function closeEasterEgg() {
+    const overlay = document.getElementById("easterEggOverlay");
+    if (overlay) overlay.classList.add("hidden");
+    stopStaticNoise();
+  }
+
+  function startStaticNoise() {
+    const canvas = document.getElementById("staticCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+      canvas.width = Math.max(200, Math.floor(window.innerWidth / 3)); // Render lower resolution for pixelated static
+      canvas.height = Math.max(150, Math.floor(window.innerHeight / 3));
+    }
+    resize();
+
+    function drawStatic() {
+      if (!ctx) return;
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.fillStyle = EASTER_EGG_CONFIG.bgColor;
+      ctx.fillRect(0, 0, w, h);
+
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const data = imgData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        if (Math.random() < 0.2) { // Static grain density
+          const intensity = Math.floor(Math.random() * 140) + 30;
+          data[i] = intensity + 80;               // Red channel
+          data[i + 1] = Math.floor(intensity * 0.1); // Green channel
+          data[i + 2] = Math.floor(intensity * 0.1); // Blue channel
+          data[i + 3] = Math.floor(Math.random() * 180) + 40; // Alpha
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      staticAnimFrame = requestAnimationFrame(drawStatic);
+    }
+
+    stopStaticNoise();
+    drawStatic();
+  }
+
+  function stopStaticNoise() {
+    if (staticAnimFrame) {
+      cancelAnimationFrame(staticAnimFrame);
+      staticAnimFrame = null;
+    }
+  }
+
+
     const ICONS = {
       knob: "https://static.wikitide.net/doorswiki/thumb/2/2f/Knobs_icon.png/35px-Knobs_icon.png",
       noKnobs: "https://static.wikitide.net/doorswiki/d/dd/No_Knobs_icon.svg",
@@ -1939,5 +2058,20 @@
       renderApp();
     };
   </script>
+
+  <div id="easterEggOverlay" 
+     onclick="advanceEasterEggDialog()" 
+     class="fixed inset-0 z-50 hidden flex flex-col items-center justify-center p-6 overflow-hidden select-none cursor-pointer">
+  <canvas id="staticCanvas" class="absolute inset-0 w-full h-full pointer-events-none opacity-90"></canvas>
+  
+  <div class="relative z-10 max-w-2xl text-center flex flex-col items-center justify-center gap-6 p-4">
+    <p id="easterEggText" class="swaying-text font-doors-title text-2xl sm:text-4xl md:text-5xl font-bold tracking-wider uppercase leading-snug drop-shadow-lg transition-all duration-300">
+      <!-- Dialog line injected here -->
+    </p>
+    <span id="easterEggPrompt" class="text-xs sm:text-sm font-semibold opacity-60 tracking-widest uppercase animate-pulse">
+      [ Click anywhere to continue ]
+    </span>
+  </div>
+</div>
 </body>
 </html>
