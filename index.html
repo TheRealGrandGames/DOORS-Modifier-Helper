@@ -347,7 +347,7 @@
       seek: "#ff6c6c",
       figure: "#eb8472",
       dupe: "#ffa0b8",
-      rushm: "#bfbbd4",
+      rush: "#bfbbd4",
       ambush: "#abf1c2",
       eyes: "#c7bcff",
       screech: "#bdc4d3",
@@ -446,7 +446,7 @@
       { divider: true },
 
       {
-        id: "chaos_one",
+        id: "chaos_1",
         name: "Uh Oh",
         description: "Activates a random modifier.",
         colorTemplate: "danger3",
@@ -457,7 +457,7 @@
         disableKnobs: false
       },
       {
-        id: "chaos_three",
+        id: "chaos_3",
         name: "How Unfortunate",
         description: "Activates 3 random modifiers.",
         colorTemplate: "danger4",
@@ -468,7 +468,7 @@
         disableKnobs: false
       },
       {
-        id: "chaos_five",
+        id: "chaos_5",
         name: "Chaos, Chaos",
         description: "Activates 5 random modifiers.",
         colorTemplate: "danger5",
@@ -904,6 +904,53 @@
         disableProgress: false,
         disableKnobs: false,
         requirement: "Requires 'Hotel Hell'"
+      },
+
+      {
+        id: "rush_more",
+        name: "Rush Hour",
+        description: "Rush will attack more often.",
+        colorTemplate: "rush",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "rush_faster",
+        name: "I'm Runnin' Here",
+        description: "Rush will move quicker.",
+        colorTemplate: "rush",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "rush_quiet",
+        name: "I'm Tip-Toein' Here",
+        description: "Rush will emit no sound.",
+        colorTemplate: "rush",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Stay Out Of My Way'"
+      },
+      {
+        id: "rush_level_2",
+        name: "Rush Around",
+        description: "Rush can attack from the door ahead, instead of the last door.",
+        colorTemplate: "rush",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'See You Soon'"
       },
     ];
 
