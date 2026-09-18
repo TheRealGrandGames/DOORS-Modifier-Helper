@@ -952,6 +952,30 @@
         disableKnobs: false,
         requirement: "Requires 'See You Soon'"
       },
+
+      {
+        id: "dupe_more",
+        name: "Wrong Number",
+        description: "Dupe will spawn more and increase in difficulty.",
+        colorTemplate: "dupe",
+        knobPercent: 5,
+        groupId: "dupe_spawn",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "dupe_most",
+        name: "Battle Of Wits",
+        description: "Dupe will almost always spawn and is set to maximum difficulty.",
+        colorTemplate: "dupe",
+        knobPercent: 15,
+        groupId: "dupe_spawn",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Outwitted'"
+      },
     ];
 
     let modifiers = JSON.parse(JSON.stringify(INITIAL_MODIFIERS));
@@ -1279,7 +1303,7 @@
 
       rowEl.innerHTML = `
         <div class="flex items-center gap-2 pl-0.5">
-          ${isLocked ? `<span class="text-sm">🔒</span>` : ''}
+          ${isLocked ? `<span class="text-sm" style="color: ${textColor}">🔒︎</span>` : ''}
           <span class="font-bold text-base sm:text-lg font-doors-title tracking-wide transition-colors" style="color: ${textColor}">
             ${mod.name}
           </span>
