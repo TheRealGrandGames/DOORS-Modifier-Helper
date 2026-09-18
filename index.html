@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DOORS Modifiers UI</title>
+  <title>DOORS Modifier Helper</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,15 +54,16 @@
       border-style: solid;
       box-shadow: inset 0 2px 10px rgba(0,0,0,0.7);
       border-radius: 20px;
-      height: 165px;
-      min-height: 165px;
-      max-height: 165px;
+      height: 190px;
+      min-height: 190px;
+      max-height: 190px;
       box-sizing: border-box;
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
 
     /* Modifier Row Capsule - fixed 3px border to prevent layout shift */
     .modifier-row {
+      position: relative;
       border-width: 3px;
       border-style: solid;
       opacity: 0.5;
@@ -75,26 +76,61 @@
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
     }
 
+    .modifier-row.locked {
+      opacity: 0.35 !important;
+      cursor: not-allowed !important;
+      filter: grayscale(0.5);
+    }
+
     .group-bracket-wrapper {
       position: relative;
-      padding-left: 18px;
+      padding-left: 22px;
       margin-left: 2px;
     }
 
+    /* Vertical Spine connecting first row center to last row center */
     .group-bracket-wrapper::before {
       content: "";
       position: absolute;
-      left: 0;
-      top: 10px;
-      bottom: 10px;
-      width: 12px;
-      border-left: 5px solid var(--bracket-color, #604337);
-      border-top: 5px solid var(--bracket-color, #604337);
-      border-bottom: 5px solid var(--bracket-color, #604337);
-      border-top-left-radius: 8px;
-      border-bottom-left-radius: 8px;
+      left: 3px;
+      top: 27px;
+      bottom: 27px;
+      width: 5px;
+      background-color: var(--bracket-color, #604337);
+      transition: background-color 0.2s ease;
+      border-radius: 3px;
+    }
+
+    .group-row-item {
+      position: relative;
+      width: 100%;
+    }
+
+    /* Horizontal ticks pointing to every row in the group - rendered at 100% opacity to match side spine */
+    .group-row-item.group-first::before,
+    .group-row-item.group-middle::before,
+    .group-row-item.group-last::before {
+      content: "";
+      position: absolute;
+      left: -19px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 5px;
+      background-color: var(--bracket-color, #604337);
+      transition: background-color 0.2s ease;
       pointer-events: none;
-      transition: border-color 0.2s ease;
+      z-index: 1;
+    }
+
+    /* Top row gets rounded top-left corner cap (┌) */
+    .group-row-item.group-first::before {
+      border-top-left-radius: 5px;
+    }
+
+    /* Bottom row gets rounded bottom-left corner cap (└) */
+    .group-row-item.group-last::before {
+      border-bottom-left-radius: 5px;
     }
 
     /* Positive Knob Badge */
@@ -120,34 +156,41 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-3 sm:p-6 overflow-x-hidden">
 
-  <header class="w-full max-w-5xl flex flex-wrap items-center justify-between gap-3 mb-5 px-2">
+  <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-3 mb-5 px-2">
     <div class="flex items-center gap-3">
       <img src="https://static.wikitide.net/doorswiki/thumb/a/a3/Modifiers_icon.png/300px-Modifiers_icon.png" class="w-10 sm:w-11 h-10 sm:h-11 object-contain drop-shadow-md" alt="DOORS Modifiers Icon" />
       <div>
-        <h1 class="text-xl sm:text-2xl font-bold tracking-wide text-amber-100 font-doors-title uppercase">DOORS Modifiers</h1>
+        <h1 class="text-xl sm:text-2xl font-bold tracking-wide text-amber-100 font-doors-title uppercase">DOORS Modifier Helper</h1>
         <p class="text-xs text-amber-200/60">Select and inspect DOORS game modifiers</p>
       </div>
     </div>
 
-    <!-- Actions: Presets Pop-up Trigger & Clear All Button -->
-    <div class="flex items-center gap-2">
-      <button onclick="togglePresetModal(true)" class="px-3.5 py-1.5 bg-amber-950 hover:bg-amber-900 border border-amber-700/70 rounded-xl text-xs sm:text-sm font-semibold text-amber-200 transition shadow flex items-center gap-1.5">
-        Presets ▾
-      </button>
-      <button onclick="clearAllSelections()" class="px-3.5 py-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl text-xs sm:text-sm font-semibold text-neutral-300 transition shadow flex items-center gap-1.5">
+    <!-- Actions: Presets, Save/Load, & Clear All -->
+    <div class="flex items-center flex-wrap gap-2">
+      <button onclick="clearAllSelections()" class="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl text-xs sm:text-sm font-semibold text-neutral-300 transition shadow flex items-center gap-1.5">
         Clear All
       </button>
+      <button onclick="togglePresetModal(true)" class="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 border border-amber-700/70 rounded-xl text-xs sm:text-sm font-semibold text-amber-200 transition shadow flex items-center gap-1.5">
+        Presets ▾
+      </button>
+      <button onclick="saveToFile()" class="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 border border-stone-600 rounded-xl text-xs sm:text-sm font-semibold text-stone-200 transition shadow flex items-center gap-1">
+        Save
+      </button>
+      <button onclick="document.getElementById('importInput').click()" class="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 border border-stone-600 rounded-xl text-xs sm:text-sm font-semibold text-stone-200 transition shadow flex items-center gap-1">
+        Load
+      </button>
+      <input type="file" id="importInput" accept=".json" class="hidden" onchange="loadFromFile(event)" />
     </div>
   </header>
 
-  <main class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
     <!-- Left Column: Replica DOORS Selector Modal (7 Cols on desktop) -->
     <div class="lg:col-span-7 flex justify-center">
-      <div class="doors-modal w-full max-w-md p-4 sm:p-5 flex flex-col gap-3 relative">
+      <div class="doors-modal w-full max-w-xl p-4 sm:p-5 flex flex-col gap-3 relative">
         
         <!-- Top Detail / Active Preview Card -->
-        <div id="topDetailCard" class="top-detail-card p-3.5 flex flex-col items-center justify-between text-center transition-all duration-150 overflow-hidden">
+        <div id="topDetailCard" class="top-detail-card p-2.5 pt-2 flex flex-col items-center justify-between text-center transition-all duration-150 overflow-hidden">
           <!-- Dynamically populated by JS -->
         </div>
 
@@ -159,9 +202,42 @@
       </div>
     </div>
 
-    <!-- Right Column: Live Run Summary & Active Restrictions Panel -->
+    <!-- Right Column: Requirement Lock Toggle & Live Run Summary -->
     <div class="lg:col-span-5 flex flex-col gap-4">
       
+      <!-- Requirements Lock Toggle Panel -->
+      <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 shadow-xl flex flex-col gap-3.5">
+        
+        <h2 class="text-lg font-bold text-amber-300 flex items-center gap-2 border-b border-stone-800 pb-2 font-doors-title tracking-wide uppercase">
+          Toggles
+        </h2>
+
+        <!-- Toggle Row 1: Enforce Requirements -->
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-amber-200 font-doors-title uppercase tracking-wide">Enforce Requirements</h3>
+            <p class="text-xs text-stone-400">Show requirements & lock unmet modifiers</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer shrink-0">
+            <input type="checkbox" id="toggleRequirements" class="sr-only peer" onchange="toggleRequirementLock(this.checked)">
+            <div class="w-11 h-6 bg-stone-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-amber-400 after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-900 border border-amber-800/60"></div>
+          </label>
+        </div>
+
+        <!-- Toggle Row 2: Custom Ideas -->
+        <div class="flex items-center justify-between gap-3 border-t border-stone-800/50 pt-2.5">
+          <div>
+            <h3 class="text-sm font-bold text-purple-200 font-doors-title uppercase tracking-wide">Show Custom Modifier Ideas</h3>
+            <p class="text-xs text-stone-400">Include fan-made custom modifier ideas</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer shrink-0">
+            <input type="checkbox" id="toggleCustomIdeas" class="sr-only peer" onchange="toggleCustomIdeas(this.checked)">
+            <div class="w-11 h-6 bg-stone-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-purple-400 after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-900 border border-purple-800/60"></div>
+          </label>
+        </div>
+
+      </div>
+
       <!-- Live Configuration Multiplier & Restrictions Summary -->
       <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
         <h2 class="text-lg font-bold text-amber-300 flex items-center gap-2 border-b border-stone-800 pb-2.5 font-doors-title tracking-wide uppercase">
@@ -221,6 +297,7 @@
     </div>
   </main>
 
+  <!-- Presets Modal Pop-Up -->
   <div id="presetModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="doors-modal w-full max-w-sm p-5 flex flex-col gap-3 text-center shadow-2xl relative max-h-[85vh]">
       <div class="flex items-center justify-between border-b border-amber-900/40 pb-2">
@@ -251,6 +328,51 @@
       noProgress: "https://static.wikitide.net/doorswiki/2/29/No_Progress_icon.svg"
     };
 
+    /* COLOR TEMPLATES DICTIONARY */
+    const COLOR_TEMPLATES = {
+      defaultm: "#ffdebd",
+      player: "#ffdebd",
+      helpful1: "#f9ffb8",
+      helpful2: "#c0ffa9",
+      helpful3: "#abffd5",
+      helpful4: "#aae6ff",
+      danger0: "#ffbb93",
+      danger1: "#ffa093",
+      danger2: "#ff9294",
+      danger3: "#ff7386",
+      danger4: "#ff566f",
+      danger5: "#ff4b4e",
+      danger6: "#ff272b",
+      hide: "#ffa08f",
+      seek: "#ff6c6c",
+      figure: "#eb8472",
+      dupe: "#ffa0b8",
+      rushm: "#bfbbd4",
+      ambush: "#abf1c2",
+      eyes: "#c7bcff",
+      screech: "#bdc4d3",
+      timothy: "#9db394",
+      snare: "#a5b371",
+      halt: "#50ffd9",
+      giggle: "#bcb0aa",
+      curious: "#ffdc4f",
+      white: "#ffffff",
+      pink: "#ff86d9",
+      cool: "#ffb9f8",
+      purple: "#aa83ff"
+    };
+
+    /**
+     * Resolves hex color code from modifier object using colorTemplate template name.
+     */
+    function getModifierColor(mod) {
+      if (!mod) return COLOR_TEMPLATES.defaultm;
+      if (mod.colorTemplate && COLOR_TEMPLATES[mod.colorTemplate]) {
+        return COLOR_TEMPLATES[mod.colorTemplate];
+      }
+      return mod.color || COLOR_TEMPLATES.defaultm;
+    }
+
     const INITIAL_PRESETS = [
       {
         id: "hotel_hell",
@@ -258,34 +380,244 @@
         knobText: "+150% Knobs",
         styleClass: "bg-red-950/80 hover:bg-red-900 border-red-800/80 text-red-200",
         badgeClass: "bg-red-900/60 text-red-300",
-        description: "Enables all hard modifiers alongside Hotel Hell for maximum challenge.",
+        description: "Hardcore challenge run targeting 150%+ modifier boost.",
         modifierIds: [
-          "no_laughing_matter", "dripped_out", "infested", "bug_problem",
-          "blitz_oh", "look_man", "vacuum_sealed", "make_haste", "malware",
-          "rugburn", "hotel_hell"
+          "random_five"
         ]
       },
-      {
-        id: "safe_run",
-        name: "Safe Run",
-        knobText: "-15% Knobs",
-        styleClass: "bg-emerald-950/80 hover:bg-emerald-900 border-emerald-800/80 text-emerald-200",
-        badgeClass: "bg-emerald-900/60 text-emerald-300",
-        description: "Easier gameplay with boosted coin yields at Jeff's Shop expense.",
-        modifierIds: ["el_goblino_payday"]
-      },
-      {
-        id: "spider_fever",
-        name: "Bug Infestation",
-        knobText: "+10% Knobs",
-        styleClass: "bg-amber-950/80 hover:bg-amber-900 border-amber-800/80 text-amber-200",
-        badgeClass: "bg-amber-900/60 text-amber-300",
-        description: "Forces high Timothy spider spawns across drawers.",
-        modifierIds: ["bug_problem"]
-      }
     ];
 
     let presets = JSON.parse(JSON.stringify(INITIAL_PRESETS));
+
+    /* MODIFIERS DATA CONFIGURATION */
+    const INITIAL_MODIFIERS = [
+      {
+        id: "admin_panel",
+        name: "Admin Panel",
+        description: "Spawn entities, items, and troll your friends! Cannot gain progression while enabled.",
+        colorTemplate: "helpful4",
+        knobPercent: -999,
+        groupId: null,
+        disableRift: true,
+        disableProgress: true,
+        disableKnobs: true,
+        requirement: "Requires 'Admin Panel' Gamepass"
+      },
+
+      { divider: true },
+
+      {
+        id: "streamer_mode",
+        name: "Random Events",
+        description: "Enable random events! Includes option to let Twitch and/or YouTube chat choose events!",
+        colorTemplate: "cool",
+        knobPercent: -50,
+        groupId: null,
+        disableRift: true,
+        disableProgress: true,
+        disableKnobs: false
+      },
+      {
+        id: "custom_seed",
+        name: "Custom Seed",
+        description: "Makes room generation & most events consistent. Updates/patches may cause changes.",
+        colorTemplate: "cool",
+        knobPercent: -999,
+        groupId: null,
+        disableRift: true,
+        disableProgress: true,
+        disableKnobs: false
+      },
+
+      { divider: true },
+
+      {
+        id: "voicelines",
+        name: "Voice Acting",
+        description: "Activates the April Fools 2024 voicelines.",
+        colorTemplate: "white",
+        knobPercent: -20,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+
+      { divider: true },
+
+      {
+        id: "chaos_one",
+        name: "Uh Oh",
+        description: "Activates a random modifier.",
+        colorTemplate: "danger3",
+        knobPercent: 10,
+        groupId: "chaos",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "chaos_three",
+        name: "How Unfortunate",
+        description: "Activates 3 random modifiers.",
+        colorTemplate: "danger4",
+        knobPercent: 30,
+        groupId: "chaos",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "chaos_five",
+        name: "Chaos, Chaos",
+        description: "Activates 5 random modifiers.",
+        colorTemplate: "danger5",
+        knobPercent: 50,
+        groupId: "chaos",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+
+      { divider: true },
+
+      {
+        id: "lights_never_flicker",
+        name: "Electrical Work",
+        description: "Lights will never flicker or break. Includes entity warnings.",
+        colorTemplate: "danger0",
+        knobPercent: 10,
+        groupId: "lights",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "lights_less",
+        name: "Bad Electrical Work",
+        description: "More rooms will be dark. Lights will occasionally flicker and break.",
+        colorTemplate: "danger1",
+        knobPercent: 10,
+        groupId: "lights",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "lights_least",
+        name: "Power Shortage",
+        description: "Most rooms will be dark, even during attacks. Lights flicker and break.",
+        colorTemplate: "danger2",
+        knobPercent: 15,
+        groupId: "lights",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "lights_out",
+        name: "Lights Out",
+        description: "All rooms will be completely dark. Have fun!",
+        colorTemplate: "danger3",
+        knobPercent: 25,
+        groupId: "lights",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+
+      {
+        id: "gold_spawn_less",
+        name: "El Goblino Was Here",
+        description: "Less gold can be found.",
+        colorTemplate: "danger1",
+        knobPercent: 5,
+        groupId: "gold",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "gold_spawn_none",
+        name: "El Goblino's Payday",
+        description: "No gold can be found.",
+        colorTemplate: "danger2",
+        knobPercent: 15,
+        groupId: "gold",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+    ];
+
+    let modifiers = JSON.parse(JSON.stringify(INITIAL_MODIFIERS));
+    let selectedIds = new Set();
+    let hoverId = null;
+    let hoverTimeout = null;
+    let enforceRequirements = false;
+    let showCustomIdeas = false;
+
+    function toggleCustomIdeas(enabled) {
+      showCustomIdeas = enabled;
+      renderApp();
+    }
+
+    function toggleRequirementLock(enabled) {
+      enforceRequirements = enabled;
+      if (enforceRequirements) {
+        modifiers.forEach(m => {
+          if (!m.divider && m.requirement && selectedIds.has(m.id)) {
+            selectedIds.delete(m.id);
+          }
+        });
+      }
+      renderApp();
+    }
+
+    function shouldShowItem(item) {
+      if (item.customModifierIdea && !showCustomIdeas) return false;
+      return true;
+    }
+
+    /* Save & Load Modifier Selection List */
+    function saveToFile() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Array.from(selectedIds), null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "doors_modifiers.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function loadFromFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const loadedIds = JSON.parse(e.target.result);
+          if (Array.isArray(loadedIds)) {
+            selectedIds.clear();
+            loadedIds.forEach(id => {
+              const found = modifiers.find(m => !m.divider && m.id === id);
+              if (found && (!enforceRequirements || !found.requirement)) {
+                selectedIds.add(id);
+              }
+            });
+            renderApp();
+          }
+        } catch (err) {
+          console.error("Invalid JSON format for DOORS modifiers", err);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
 
     /**
      * Darkens a hex color by a factor (0.0 = black, 1.0 = original color)
@@ -322,147 +654,6 @@
       return `rgb(${r}, ${g}, ${b})`;
     }
 
-    /* MODIFIERS DATA CONFIGURATION */
-    const INITIAL_MODIFIERS = [
-      {
-        id: "no_laughing_matter",
-        name: "No Laughing Matter",
-        description: "Giggle appears more frequently and spawns in unexpected hiding spots.",
-        color: "#fde047",
-        knobPercent: 5,
-        groupId: null,
-        disableRift: false,
-        disableProgress: false,
-        disableKnobs: false
-      },
-      {
-        id: "dripped_out",
-        name: "Dripped Out",
-        description: "Screech sports a fancy stylish hat. Doesn't alter gameplay mechanics.",
-        color: "#e2e8f0",
-        knobPercent: 5,
-        groupId: null,
-        disableRift: false,
-        disableProgress: false,
-        disableKnobs: false
-      },
-      {
-        id: "infested",
-        name: "Infested",
-        description: "Timothy spiders spawn significantly more frequently inside drawers.",
-        color: "#9ca3af",
-        knobPercent: 5,
-        groupId: "spider_group",
-        disableRift: false,
-        disableProgress: false,
-        disableKnobs: false
-      },
-      {
-        id: "bug_problem",
-        name: "Bug Problem",
-        description: "Timothy spiders spawn in almost every single drawer and inflict extra damage.",
-        color: "#f59e0b",
-        knobPercent: 10,
-        groupId: "spider_group",
-        disableRift: false,
-        disableProgress: false,
-        disableKnobs: false
-      },
-      {
-        id: "blitz_oh",
-        name: "Blitz, Oh",
-        description: "Blitz from The Backdoor replaces Rush completely and attacks much faster.",
-        color: "#fde047",
-        knobPercent: 5,
-        groupId: null,
-        disableRift: false,
-        disableProgress: false,
-        disableKnobs: false
-      },
-      {
-        id: "look_man",
-        name: "Look, Man",
-        description: "The Lookman from The Backdoor has a chance to appear.",
-        color: "#fde047",
-        knobPercent: 10,
-        groupId: null,
-        disableRift: false,
-        disableProgress: false,
-        disableKnobs: false
-      },
-      {
-        id: "vacuum_sealed",
-        name: "Vacuum Sealed",
-        description: "Vacuum entities linger in tight hallway passages.",
-        color: "#38bdf8",
-        knobPercent: 10,
-        groupId: null,
-        disableRift: false,
-        disableProgress: false,
-        disableKnobs: false
-      },
-      {
-        id: "make_haste",
-        name: "Make Haste",
-        description: "Haste attacks swiftly if you stall or linger too long in rooms.",
-        color: "#f97316",
-        knobPercent: 25,
-        groupId: null,
-        disableRift: false,
-        disableProgress: true,
-        disableKnobs: false
-      },
-      {
-        id: "el_goblino_payday",
-        name: "El Goblino's Payday",
-        description: "Gold coin yields are doubled, but items in Jeff's Shop are far more expensive.",
-        color: "#4ade80",
-        knobPercent: -15,
-        groupId: null,
-        disableRift: true,
-        disableProgress: false,
-        disableKnobs: false
-      },
-      {
-        id: "malware",
-        name: "Malware",
-        description: "Glitch triggers more aggressively and scrambles room door numbers.",
-        color: "#c084fc",
-        knobPercent: 5,
-        groupId: null,
-        disableRift: false,
-        disableProgress: false,
-        disableKnobs: false
-      },
-      {
-        id: "rugburn",
-        name: "Rugburn",
-        description: "Sprinting rapidly drains stamina and deals minor trip damage.",
-        color: "#fb7185",
-        knobPercent: 10,
-        groupId: null,
-        disableRift: false,
-        disableProgress: false,
-        disableKnobs: false
-      },
-      {
-        id: "hotel_hell",
-        name: "Hotel Hell",
-        description: "Ultimate challenge modifier. Disables the Rift, disables progress, and disables knob collection.",
-        color: "#f87171",
-        knobPercent: -50,
-        groupId: null,
-        disableRift: true,
-        disableProgress: true,
-        disableKnobs: true
-      }
-    ];
-
-    let modifiers = JSON.parse(JSON.stringify(INITIAL_MODIFIERS));
-    let selectedIds = new Set();
-    let hoverId = null;
-    let hoverTimeout = null;
-
     function onModifierHover(id) {
       if (hoverTimeout) {
         clearTimeout(hoverTimeout);
@@ -474,7 +665,6 @@
 
     function onModifierLeave() {
       if (hoverTimeout) clearTimeout(hoverTimeout);
-      // Wait 1.8s before clearing hover state back to default idle screen
       hoverTimeout = setTimeout(() => {
         hoverId = null;
         renderTopDetailCard();
@@ -487,12 +677,81 @@
       renderSummaryPanel();
     }
 
+    function renderModifiersList() {
+      const container = document.getElementById("modifiersList");
+      if (!container) return;
+      container.innerHTML = "";
+
+      let i = 0;
+      while (i < modifiers.length) {
+        const item = modifiers[i];
+
+        // Handle Divider render
+        if (item.divider) {
+          const hr = document.createElement("div");
+          hr.className = "w-full my-2 border-b-4 rounded-full";
+          hr.style.borderColor = "#604337";
+          container.appendChild(hr);
+          i++;
+          continue;
+        }
+
+        const mod = item;
+        if (!shouldShowItem(mod)) {
+          i++;
+          continue;
+        }
+
+        if (mod.groupId) {
+          const currentGroupId = mod.groupId;
+          const groupMods = [];
+          while (i < modifiers.length && modifiers[i].groupId === currentGroupId) {
+            if (shouldShowItem(modifiers[i])) {
+              groupMods.push(modifiers[i]);
+            }
+            i++;
+          }
+
+          if (groupMods.length > 0) {
+            const selectedInGroup = groupMods.find(m => selectedIds.has(m.id));
+            const bracketColor = selectedInGroup ? getModifierColor(selectedInGroup) : '#604337';
+
+            const groupWrapper = document.createElement("div");
+            groupWrapper.className = "group-bracket-wrapper flex flex-col gap-2 my-1";
+            groupWrapper.style.setProperty("--bracket-color", bracketColor);
+
+            groupMods.forEach((gMod, idx) => {
+              const rowItem = document.createElement("div");
+              rowItem.className = "group-row-item";
+              if (idx === 0) {
+                rowItem.classList.add("group-first");
+              } else if (idx === groupMods.length - 1) {
+                rowItem.classList.add("group-last");
+              } else {
+                rowItem.classList.add("group-middle");
+              }
+
+              const rowEl = createModifierRowElement(gMod);
+              rowItem.appendChild(rowEl);
+              groupWrapper.appendChild(rowItem);
+            });
+
+            container.appendChild(groupWrapper);
+          }
+        } else {
+          const rowEl = createModifierRowElement(mod);
+          container.appendChild(rowEl);
+          i++;
+        }
+      }
+    }
+
     /**
      * Renders top detail preview card with FIXED container height and idle fallback state.
      */
     function renderTopDetailCard() {
       const container = document.getElementById("topDetailCard");
-      const mod = modifiers.find(m => m.id === hoverId);
+      const mod = modifiers.find(m => !m.divider && m.id === hoverId);
 
       // DEFAULT IDLE STATE when nothing is hovered
       if (!mod) {
@@ -500,16 +759,16 @@
         container.style.borderColor = '#482918';
 
         container.innerHTML = `
-          <div class="w-full flex flex-col items-center justify-center my-auto px-2">
-            <h3 class="font-bold font-doors-title text-2xl sm:text-3xl tracking-wide text-glow-yellow mb-1 text-amber-300">
+          <div class="w-full flex flex-col items-center justify-start pt-0 px-2 text-center">
+            <h3 class="w-full font-bold font-doors-title text-2xl sm:text-3xl tracking-wide text-glow-yellow mb-1 text-amber-300 text-center">
               MODIFIERS
             </h3>
-            <p class="max-w-xs sm:max-w-md text-xs sm:text-sm font-medium text-amber-100/80 leading-snug">
+            <p class="max-w-xs sm:max-w-md text-sm sm:text-base font-medium text-amber-100/80 leading-snug text-center">
               Add challenges to your run for extra rewards and achievements!
             </p>
           </div>
-          <div class="mt-1 flex items-center justify-center gap-2 pb-0.5">
-            <div class="px-3 py-0.5 rounded-full text-xs font-semibold bg-amber-950/60 border border-amber-800/40 text-amber-200/70">
+          <div class="mt-auto flex items-center justify-center gap-2 pb-0.5 w-full">
+            <div class="px-3 py-0.5 rounded-full text-xs font-semibold bg-amber-950/60 border border-amber-800/40 text-amber-200/70 text-center">
               Hover over a modifier to preview
             </div>
           </div>
@@ -518,7 +777,7 @@
       }
 
       // ACTIVE HOVERED MODIFIER STATE
-      const baseColor = mod.color || '#fde047';
+      const baseColor = getModifierColor(mod);
       const cardBg = darkenColor(baseColor, 0.22);
       const cardBorder = baseColor;
       const lighterText = getLighterTextColor(baseColor, 0.5);
@@ -526,35 +785,54 @@
       container.style.backgroundColor = cardBg;
       container.style.borderColor = cardBorder;
 
-      const isNegative = mod.knobPercent < 0;
-      const knobText = `${mod.knobPercent >= 0 ? '+' : ''}${mod.knobPercent}%`;
+      const isNegative = (mod.knobPercent || 0) < 0;
+      const knobText = `${(mod.knobPercent || 0) >= 0 ? '+' : ''}${mod.knobPercent || 0}%`;
       const badgeClass = isNegative ? 'knob-badge-negative' : 'knob-badge-positive';
 
-      const nameLength = mod.name.length;
-      const descLength = mod.description.length;
+      const modName = mod.name || "";
+      const modDesc = mod.description || "";
+      const descLength = modDesc.length;
 
-      let titleSizeClass = "text-2xl sm:text-3xl";
-      if (nameLength > 20) titleSizeClass = "text-lg sm:text-xl";
-      else if (nameLength > 14) titleSizeClass = "text-xl sm:text-2xl";
+      let descSizeClass = "text-base sm:text-lg leading-snug";
+      if (descLength > 120) descSizeClass = "text-xs sm:text-sm leading-tight";
+      else if (descLength > 75) descSizeClass = "text-sm sm:text-base leading-snug";
 
-      let descSizeClass = "text-xs sm:text-sm";
-      if (descLength > 80) descSizeClass = "text-[11px] sm:text-xs leading-tight";
+      const isLocked = enforceRequirements && Boolean(mod.requirement);
 
       container.innerHTML = `
-        <div class="w-full flex flex-col items-center justify-center my-auto px-1">
-          <h3 class="font-bold font-doors-title tracking-wide text-glow-yellow mb-0.5 transition-all ${titleSizeClass}" style="color: ${baseColor}">
-            ${mod.name}
+        <div class="w-full flex flex-col items-center justify-start pt-0 px-1 text-center">
+          <h3 class="w-full font-bold font-doors-title text-2xl sm:text-3xl tracking-wide text-glow-yellow mb-1 text-center" style="color: ${baseColor}">
+            ${modName}
           </h3>
-          <p class="max-w-xs sm:max-w-md font-medium transition-all ${descSizeClass}" style="color: ${lighterText}">
-            ${mod.description}
+          <p class="max-w-md sm:max-w-lg font-medium transition-all ${descSizeClass} text-center" style="color: ${lighterText}">
+            ${modDesc}
           </p>
         </div>
 
-        <div class="mt-1 flex flex-wrap items-center justify-center gap-2 pb-0.5">
-          <div class="px-3 py-1 rounded-full text-sm sm:text-base font-bold flex items-center gap-2 shadow-md ${badgeClass}">
-            <img src="${ICONS.knob}" class="w-6 h-6 object-contain" alt="Knobs" />
-            <span>${knobText}</span>
-          </div>
+        <div class="mt-auto flex flex-wrap items-center justify-center gap-2 pb-0.5 w-full">
+          ${isLocked ? `
+            <div class="px-3 py-0.5 rounded-full text-xs font-bold font-doors-title flex items-center gap-1.5 bg-red-950/90 border border-red-700 text-red-200 shadow-sm uppercase tracking-wide">
+              <span>${mod.requirement}</span>
+            </div>
+          ` : (enforceRequirements === false && mod.requirement ? `
+            <div class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-stone-950/80 border border-amber-800/40 text-amber-300/80">
+              ${mod.requirement}
+            </div>
+          ` : '')}
+
+          ${mod.knobPercent !== undefined && mod.knobPercent !== 0 ? `
+            <div class="px-3 py-1 rounded-full text-sm sm:text-base font-bold flex items-center gap-2 shadow-md ${badgeClass}">
+              <img src="${ICONS.knob}" class="w-6 h-6 object-contain" alt="Knobs" />
+              <span>${knobText}</span>
+            </div>
+          ` : ''}
+
+          ${mod.disableKnobs ? `
+            <div class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold font-doors-title flex items-center gap-2 bg-[#6b1d24] border border-[#a3323c] text-[#fca5a5] shadow-sm uppercase tracking-wide">
+              <img src="${ICONS.noKnobs}" class="w-7 h-7 object-contain" alt="No Knobs" />
+              <span>NO KNOBS</span>
+            </div>
+          ` : ''}
 
           ${mod.disableRift ? `
             <div class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold font-doors-title flex items-center gap-2 bg-[#6b1d24] border border-[#a3323c] text-[#fca5a5] shadow-sm uppercase tracking-wide">
@@ -569,52 +847,8 @@
               <span>NO PROGRESS</span>
             </div>
           ` : ''}
-
-          ${mod.disableKnobs ? `
-            <div class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold font-doors-title flex items-center gap-2 bg-[#6b1d24] border border-[#a3323c] text-[#fca5a5] shadow-sm uppercase tracking-wide">
-              <img src="${ICONS.noKnobs}" class="w-7 h-7 object-contain" alt="No Knobs" />
-              <span>NO KNOBS</span>
-            </div>
-          ` : ''}
         </div>
       `;
-    }
-
-    function renderModifiersList() {
-      const container = document.getElementById("modifiersList");
-      container.innerHTML = "";
-
-      let i = 0;
-      while (i < modifiers.length) {
-        const currentMod = modifiers[i];
-
-        if (currentMod.groupId) {
-          const groupGroupId = currentMod.groupId;
-          const groupItems = [];
-
-          while (i < modifiers.length && modifiers[i].groupId === groupGroupId) {
-            groupItems.push(modifiers[i]);
-            i++;
-          }
-
-          // Bracket inherits selected modifier color if selected in group
-          const selectedInGroup = groupItems.find(m => selectedIds.has(m.id));
-          const bracketColor = selectedInGroup ? selectedInGroup.color : '#604337';
-
-          const bracketWrapper = document.createElement("div");
-          bracketWrapper.className = "group-bracket-wrapper flex flex-col gap-2 my-0.5";
-          bracketWrapper.style.setProperty('--bracket-color', bracketColor);
-
-          groupItems.forEach(mod => {
-            bracketWrapper.appendChild(createModifierRowElement(mod));
-          });
-
-          container.appendChild(bracketWrapper);
-        } else {
-          container.appendChild(createModifierRowElement(currentMod));
-          i++;
-        }
-      }
     }
 
     function createModifierRowElement(mod) {
@@ -623,43 +857,50 @@
       const knobText = `${mod.knobPercent >= 0 ? '+' : ''}${mod.knobPercent}%`;
       const badgeClass = isNegative ? 'knob-badge-negative' : 'knob-badge-positive';
 
-      const baseColor = mod.color || '#fde047';
+      const baseColor = getModifierColor(mod);
       const rowBg = darkenColor(baseColor, 0.22);
       const rowBorder = baseColor;
       const textColor = baseColor;
 
+      const isLocked = enforceRequirements && Boolean(mod.requirement);
+
       const rowEl = document.createElement("div");
-      rowEl.className = `modifier-row w-full flex items-center justify-between px-4 py-2.5 rounded-full cursor-pointer select-none transition-all ${isSelected ? 'selected' : ''}`;
+      rowEl.className = `modifier-row w-full flex items-center justify-between px-4 py-2.5 rounded-full cursor-pointer select-none transition-all ${isSelected ? 'selected' : ''} ${isLocked ? 'locked' : ''}`;
       rowEl.id = `mod-row-${mod.id}`;
       rowEl.style.backgroundColor = rowBg;
       rowEl.style.borderColor = rowBorder;
 
-      rowEl.onclick = () => toggleModifier(mod.id);
+      rowEl.onclick = () => {
+        if (!isLocked) toggleModifier(mod.id);
+      };
       rowEl.onmouseenter = () => onModifierHover(mod.id);
       rowEl.onmouseleave = () => onModifierLeave();
 
       rowEl.innerHTML = `
         <div class="flex items-center gap-2 pl-0.5">
+          ${isLocked ? `<span class="text-sm">🔒</span>` : ''}
           <span class="font-bold text-base sm:text-lg font-doors-title tracking-wide transition-colors" style="color: ${textColor}">
             ${mod.name}
           </span>
         </div>
 
         <div class="flex items-center gap-2.5">
+          ${mod.disableKnobs ? `
+            <img src="${ICONS.noKnobs}" class="w-6 h-6 object-contain" title="Disables Knobs" />
+          ` : ''}
           ${mod.disableRift ? `
-            <img src="${ICONS.noRift}" class="w-5 sm:w-6 h-5 sm:h-6 object-contain" title="Disables Rift" />
+            <img src="${ICONS.noRift}" class="w-6 h-6 object-contain" title="Disables Rift" />
           ` : ''}
           ${mod.disableProgress ? `
-            <img src="${ICONS.noProgress}" class="w-5 sm:w-6 h-5 sm:h-6 object-contain" title="Disables Progress" />
-          ` : ''}
-          ${mod.disableKnobs ? `
-            <img src="${ICONS.noKnobs}" class="w-5 sm:w-6 h-5 sm:h-6 object-contain" title="Disables Knobs" />
+            <img src="${ICONS.noProgress}" class="w-6 h-6 object-contain" title="Disables Progress" />
           ` : ''}
 
-          <div class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1.5 ${badgeClass}">
-            <img src="${ICONS.knob}" class="w-5 h-5 object-contain" alt="Knob" />
-            <span>${knobText}</span>
-          </div>
+          ${mod.knobPercent !== 0 ? `
+            <div class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1.5 ${badgeClass}">
+              <img src="${ICONS.knob}" class="w-5 h-5 object-contain" alt="Knob" />
+              <span>${knobText}</span>
+            </div>
+          ` : ''}
         </div>
       `;
 
@@ -667,7 +908,7 @@
     }
 
     function toggleModifier(id) {
-      const targetMod = modifiers.find(m => m.id === id);
+      const targetMod = modifiers.find(m => !m.divider && m.id === id);
       if (!targetMod) return;
 
       if (selectedIds.has(id)) {
@@ -675,7 +916,7 @@
       } else {
         if (targetMod.groupId) {
           modifiers.forEach(m => {
-            if (m.groupId === targetMod.groupId && selectedIds.has(m.id)) {
+            if (!m.divider && m.groupId === targetMod.groupId && selectedIds.has(m.id)) {
               selectedIds.delete(m.id);
             }
           });
@@ -687,7 +928,7 @@
     }
 
     function renderSummaryPanel() {
-      const selectedMods = modifiers.filter(m => selectedIds.has(m.id));
+      const selectedMods = modifiers.filter(m => !m.divider && selectedIds.has(m.id));
 
       const totalKnobs = selectedMods.reduce((sum, m) => sum + (m.knobPercent || 0), 0);
       const summaryKnobEl = document.getElementById("summaryKnobTotal");
@@ -766,7 +1007,7 @@
       const preset = presets.find(p => p.id === presetId);
       if (preset && Array.isArray(preset.modifierIds)) {
         preset.modifierIds.forEach(id => {
-          if (modifiers.some(m => m.id === id)) {
+          if (modifiers.some(m => !m.divider && m.id === id)) {
             selectedIds.add(id);
           }
         });
