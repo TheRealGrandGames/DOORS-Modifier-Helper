@@ -382,7 +382,7 @@
         badgeClass: "bg-red-900/60 text-red-300",
         description: "Hardcore challenge run targeting 150%+ modifier boost.",
         modifierIds: [
-          "random_five"
+          "chaos_five"
         ]
       },
     ];
@@ -546,6 +546,167 @@
         colorTemplate: "danger2",
         knobPercent: 15,
         groupId: "gold",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+
+      {
+        id: "item_spawn_more",
+        name: "More Stuff",
+        description: "More items can be found.",
+        colorTemplate: "helpful2",
+        knobPercent: -50,
+        groupId: "items",
+        disableRift: true,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "item_spawn_less",
+        name: "Less Stuff",
+        description: "Less items can be found.",
+        colorTemplate: "danger1",
+        knobPercent: 5,
+        groupId: "items",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "item_spawn_none",
+        name: "Out Of Stuff",
+        description: "Non-essential items and pickups cannot be found.",
+        colorTemplate: "danger3",
+        knobPercent: 15,
+        groupId: "items",
+        disableRift: true,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "item_durability_less",
+        name: "Wear And Tear",
+        description: "Items have significantly less durability and/or uses.",
+        colorTemplate: "danger1",
+        knobPercent: 5,
+        groupId: "items",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "player_less_slots",
+        name: "Small Hands",
+        description: "You can only hold up to three non-essential items.",
+        colorTemplate: "danger2",
+        knobPercent: 5,
+        groupId: "items",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "player_least_slots",
+        name: "Baby Hands",
+        description: "You can only hold one non-essential item.",
+        colorTemplate: "danger2",
+        knobPercent: 10,
+        groupId: "items",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+
+      {
+        id: "no_guiding_light",
+        name: "Gone Fishing",
+        description: "Most glowing hints are disabled.",
+        colorTemplate: "danger0",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "no_key_sound",
+        name: "Soundproofing",
+        description: "Keys, books, and other similar pickups no longer emit a shimmering noise.",
+        colorTemplate: "danger0",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+
+      {
+        id: "slippery",
+        name: "Wet Floor",
+        description: "The floor is slippery.",
+        colorTemplate: "danger1",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+
+      {
+        id: "fog",
+        name: "Bad Ventilation",
+        description: "Adds fog, significantly limiting vision.",
+        colorTemplate: "danger1",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+
+      {
+        id: "firedamp",
+        name: "Smelt It",
+        description: "Increases chance for Firedamp.",
+        colorTemplate: "danger1",
+        knobPercent: 5,
+        groupId: "firedamp",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "firedamp_most",
+        name: "Dealt It",
+        description: "Heavily increases chance for Firedamp.",
+        colorTemplate: "danger1",
+        knobPercent: 15,
+        groupId: "firedamp",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+
+      {
+        id: "lock_more",
+        name: "Locked And Loaded",
+        description: "Increases chance of locked rooms. Has a chance to lock normal rooms.",
+        colorTemplate: "danger2",
+        knobPercent: 10,
+        groupId: "key",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "lock_most",
+        name: "Key Key Key Key",
+        description: "Almost every room is locked.",
+        colorTemplate: "danger3",
+        knobPercent: 15,
+        groupId: "key",
         disableRift: false,
         disableProgress: false,
         disableKnobs: false,
