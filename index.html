@@ -712,6 +712,199 @@
         disableKnobs: false,
         requirement: "Requires 'Not Five Stars'"
       },
+
+      {
+        id: "least_hiding_spots",
+        name: "Nowhere To Hide",
+        description: "Hiding spots are no longer guaranteed for everyone.",
+        colorTemplate: "danger2",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+
+      {
+        id: "jammin",
+        name: "Jammin'",
+        description: "Plays some music to soothe the nerves. All other audio is muffled.",
+        colorTemplate: "danger2",
+        knobPercent: 15,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+
+      { divider: true },
+
+      {
+        id: "player_health_less",
+        name: "Tripped",
+        description: "Enter with 50% health. It can be healed back.",
+        colorTemplate: "danger1",
+        knobPercent: 5,
+        groupId: "player_health",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "player_health_least",
+        name: "Tripped And Fell",
+        description: "Enter with 10% health. It can be healed back.",
+        colorTemplate: "danger2",
+        knobPercent: 10,
+        groupId: "player_health",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "player_damage_more",
+        name: "Last Few Breaths",
+        description: "Enter with 50% MAX health.",
+        colorTemplate: "danger3",
+        knobPercent: 10,
+        groupId: "player_health",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "player_damage_most",
+        name: "Last Breath",
+        description: "All damage (except for non-fatal) results in immediate death.",
+        colorTemplate: "danger4",
+        knobPercent: 20,
+        groupId: "player_health",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+
+      {
+        id: "player_fast",
+        name: "Didn't Skip Leg Day",
+        description: "Movement speed is faster.",
+        colorTemplate: "helpful1",
+        knobPercent: -50,
+        groupId: "player_speed",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "player_faster",
+        name: "Faster, Faster, Faster",
+        description: "Movement speed is significantly faster.",
+        colorTemplate: "helpful2",
+        knobPercent: -75,
+        groupId: "player_speed",
+        disableRift: true,
+        disableProgress: true,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+      {
+        id: "player_fastest",
+        name: "MAXIMUM OVERDRIVE",
+        description: "Movement speed is incredibly fast.",
+        colorTemplate: "helpful4",
+        knobPercent: -125,
+        groupId: "player_speed",
+        disableRift: true,
+        disableProgress: true,
+        disableKnobs: false,
+        requirement: "Requires 'Hotel Hell'"
+      },
+      {
+        id: "player_crouch_slow",
+        name: "My Knees Are Killing Me",
+        description: "Crouching is significantly slower.",
+        colorTemplate: "danger0",
+        knobPercent: 5,
+        groupId: "player_speed",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "player_slow",
+        name: "My Legs Are Killing Me",
+        description: "Movement speed is significantly slower.",
+        colorTemplate: "danger1",
+        knobPercent: 10,
+        groupId: "player_speed",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+
+      {
+        id: "player_slow_health",
+        name: "Injuries",
+        description: "Missing health will also reduce speed.",
+        colorTemplate: "danger1",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+
+      { divider: true },
+
+      {
+        id: "entities_less",
+        name: "Good Time",
+        description: "Most entities will attack less often.",
+        colorTemplate: "helpful1",
+        knobPercent: -50,
+        groupId: "entity_spawn",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false
+      },
+      {
+        id: "entities_more",
+        name: "Bad Time",
+        description: "Most entities will attack more often.",
+        colorTemplate: "danger2",
+        knobPercent: 10,
+        groupId: "entity_spawn",
+        disableRift: true,
+        disableProgress: true,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+      {
+        id: "entities_most",
+        name: "Really Bad Time",
+        description: "Most entities will attack much more often.",
+        colorTemplate: "danger3",
+        knobPercent: 20,
+        groupId: "entity_spawn",
+        disableRift: true,
+        disableProgress: true,
+        disableKnobs: false,
+        requirement: "Requires 'Not Five Stars'"
+      },
+      {
+        id: "entities_moster",
+        name: "Worst Time Ever",
+        description: "Entities will unfairly attack constantly.",
+        colorTemplate: "danger6",
+        knobPercent: 25,
+        groupId: "entity_spawn",
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        requirement: "Requires 'Hotel Hell'"
+      },
     ];
 
     let modifiers = JSON.parse(JSON.stringify(INITIAL_MODIFIERS));
