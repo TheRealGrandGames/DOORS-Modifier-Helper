@@ -184,6 +184,9 @@
       <button onclick="clearAllSelections()" class="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl text-xs sm:text-sm font-semibold text-neutral-300 transition shadow flex items-center gap-1.5">
         Clear All
       </button>
+      <button onclick="toggleFloorModal(true)" id="floorSelectBtn" class="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 border border-amber-700/70 rounded-xl text-xs sm:text-sm font-semibold text-amber-200 transition shadow flex items-center gap-1.5 font-doors-title tracking-wide uppercase">
+        Floor: The Hotel ▾
+      </button>
       <button onclick="togglePresetModal(true)" class="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 border border-amber-700/70 rounded-xl text-xs sm:text-sm font-semibold text-amber-200 transition shadow flex items-center gap-1.5">
         Presets ▾
       </button>
@@ -266,6 +269,30 @@
           </div>
         </div>
 
+        <!-- Achievements Tracker Section -->
+        <div class="flex flex-col gap-1.5 bg-stone-950/60 p-3 rounded-xl border border-stone-800/80">
+          <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-stone-400">
+            <span>Achievements Status</span>
+            <span id="achievementFloorName" class="text-[11px] text-amber-300 font-doors-title">The Hotel</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <!-- 50% Badge -->
+            <div id="achieve50Card" class="p-2 rounded-lg border text-center flex flex-col items-center justify-center transition">
+              <span id="achieve50Name" class="text-xs font-bold font-doors-title uppercase">Not Five Stars</span>
+              <span class="text-[10px] opacity-75">+50% Required</span>
+              <span id="achieve50Badge" class="mt-1 px-2 py-0.5 rounded text-[10px] font-bold">Ineligible</span>
+            </div>
+
+            <!-- 150% Badge -->
+            <div id="achieve150Card" class="p-2 rounded-lg border text-center flex flex-col items-center justify-center transition">
+              <span id="achieve150Name" class="text-xs font-bold font-doors-title uppercase">Hotel Hell</span>
+              <span class="text-[10px] opacity-75">+150% Required</span>
+              <span id="achieve150Badge" class="mt-1 px-2 py-0.5 rounded text-[10px] font-bold">Ineligible</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Active Restrictions Status Checklist -->
         <div class="space-y-2">
           <span class="text-xs font-semibold uppercase tracking-wider text-stone-400">Game Restrictions</span>
@@ -311,6 +338,44 @@
     </div>
   </main>
 
+  <!-- Floor Selection Modal Pop-Up -->
+  <div id="floorModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="doors-modal w-full max-w-sm p-5 flex flex-col gap-3 text-center shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-amber-900/40 pb-2">
+        <h3 class="text-xl font-bold font-doors-title text-amber-200 uppercase tracking-wide">
+          Select Floor
+        </h3>
+        <button onclick="toggleFloorModal(false)" class="text-stone-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+
+      <p class="text-xs text-amber-200/70">Choose the floor you are preparing for:</p>
+
+      <div class="flex flex-col gap-2.5 my-2">
+        <!-- Hotel Selection Card -->
+        <button onclick="selectFloor('hotel')" id="floorOptHotel" class="w-full p-3.5 bg-amber-950/80 hover:bg-amber-900 border-2 border-amber-600 rounded-xl text-left transition flex items-center justify-between shadow">
+          <div>
+            <h4 class="font-bold text-amber-100 font-doors-title text-lg uppercase tracking-wide">The Hotel</h4>
+            <p class="text-xs text-amber-200/60">View the standard Hotel Modifiers!</p>
+          </div>
+          <span id="checkHotel" class="text-amber-400 font-bold text-xl">✓</span>
+        </button>
+
+        <!-- Mines Selection Card -->
+        <button onclick="selectFloor('mines')" id="floorOptMines" class="w-full p-3.5 bg-stone-900 hover:bg-stone-800 border-2 border-stone-700 rounded-xl text-left transition flex items-center justify-between shadow">
+          <div>
+            <h4 class="font-bold text-stone-200 font-doors-title text-lg uppercase tracking-wide">The Mines</h4>
+            <p class="text-xs text-stone-400">View the Mines Modifiers!</p>
+          </div>
+          <span id="checkMines" class="text-stone-500 font-bold text-xl hidden">✓</span>
+        </button>
+      </div>
+
+      <button onclick="toggleFloorModal(false)" class="mt-1 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-semibold">
+        Close
+      </button>
+    </div>
+  </div>
+
   <!-- Presets Modal Pop-Up -->
   <div id="presetModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="doors-modal w-full max-w-sm p-5 flex flex-col gap-3 text-center shadow-2xl relative max-h-[85vh]">
@@ -335,6 +400,49 @@
   </div>
 
   <script>
+    let selectedFloor = "hotel"; // Default to "hotel"
+
+    function toggleFloorModal(show) {
+      const modal = document.getElementById("floorModal");
+      if (show) {
+        // Update visual highlight inside modal
+        const isHotel = selectedFloor === "hotel";
+        document.getElementById("floorOptHotel").className = `w-full p-3.5 ${isHotel ? 'bg-amber-950/90 border-amber-500' : 'bg-stone-900/60 border-stone-800'} border-2 rounded-xl text-left transition flex items-center justify-between shadow`;
+        document.getElementById("floorOptMines").className = `w-full p-3.5 ${!isHotel ? 'bg-amber-950/90 border-amber-500' : 'bg-stone-900/60 border-stone-800'} border-2 rounded-xl text-left transition flex items-center justify-between shadow`;
+        document.getElementById("checkHotel").classList.toggle("hidden", !isHotel);
+        document.getElementById("checkMines").classList.toggle("hidden", isHotel);
+
+        modal.classList.remove("hidden");
+      } else {
+        modal.classList.add("hidden");
+      }
+    }
+
+    function selectFloor(floorKey) {
+      if (selectedFloor === floorKey) {
+        toggleFloorModal(false);
+        return;
+      }
+
+      selectedFloor = floorKey;
+
+      // Update header button text
+      const floorBtn = document.getElementById("floorSelectBtn");
+      if (floorBtn) {
+        floorBtn.textContent = `Floor: ${selectedFloor === "hotel" ? "The Hotel" : "The Mines"} ▾`;
+      }
+
+      // Remove selected modifiers that are not compatible with the newly selected floor
+      modifiers.forEach(m => {
+        if (!m.divider && m.floors && Array.isArray(m.floors) && !m.floors.includes(selectedFloor)) {
+          selectedIds.delete(m.id);
+        }
+      });
+
+      toggleFloorModal(false);
+      renderApp();
+    }
+
     const EASTER_EGG_CONFIG = {
       // Colors
       bgColor: "#0f0204",            // Dark red static background color
@@ -497,11 +605,55 @@
         id: "preset_all_rush",
         name: "Rushed",
         knobText: "+35% Knobs",
-        styleClass: "bg-#bfbbd4-950/80 hover:bg-#bfbbd4-900 border-#bfbbd4-800/80 text-#bfbbd4-200",
+        styleClass: "bg-[#bfbbd4]/20 hover:bg-[#bfbbd4]/30 border-[#bfbbd4]/40 text-[#bfbbd4]",
         badgeClass: "bg-red-900/60 text-red-300",
         description: "All Rush Modifiers are enabled for a harder experience.",
         modifierIds: [
           "rush_more", "rush_faster", "rush_quiet", "rush_level_2"
+        ]
+      },
+      {
+        id: "preset_backdoor",
+        name: "Accurate Backdoor",
+        knobText: "+60% Knobs",
+        styleClass: "bg-[#ffdc4f]/20 hover:bg-[#ffdc4f]/30 border-[#ffdc4f]/40 text-[#ffdc4f]",
+        badgeClass: "bg-red-900/60 text-red-300",
+        description: "Experience the Backdoor in any floor with this neat set of Modifiers!",
+        modifierIds: [
+          "lights_less", "backdoor_rush", "backdoor_lookman", "backdoor_vacuum", "backdoor_haste"
+        ]
+      },
+      {
+        id: "preset_greenhouse",
+        name: "Greenhouse",
+        knobText: "+85% Knobs",
+        styleClass: "bg-[#a5b371]/20 hover:bg-[#a5b371]/30 border-[#a5b371]/40 text-[#a5b371]",
+        badgeClass: "bg-red-900/60 text-red-300",
+        description: "Go through everyone's favorite segment of the Hotel throughout the ENTIRE FLOOR!!!",
+        modifierIds: [
+          "lights_out", "gold_spawn_none", "item_spawn_none", "rush_more", "eyes_more", "snare_most", "dupe_more"
+        ]
+      },
+      {
+        id: "preset_screech_giggle",
+        name: "Annoying Duo",
+        knobText: "+35% Knobs",
+        styleClass: "bg-[#ff272b]/20 hover:bg-[#ff272b]/30 border-[#ff272b]/40 text-[#ff272b]",
+        badgeClass: "bg-red-900/60 text-red-300",
+        description: "Screech and Giggle are significantly more annoying than usual.",
+        modifierIds: [
+          "screech_light", "screech_faster", "giggle_most", "giggle_sunglasses"
+        ]
+      },
+      {
+        id: "preset_slow_progression",
+        name: "Painfully Slow",
+        knobText: "+95% Knobs",
+        styleClass: "bg-[#ffa093]/20 hover:bg-[#ffa093]/30 border-[#ffa093]/40 text-[#ffa093]",
+        badgeClass: "bg-red-900/60 text-red-300",
+        description: "A set of Modifiers to really slow down your progression!",
+        modifierIds: [
+          "lock_most", "player_slow", "player_slow_health", "player_health_least", "dupe_most", "snare_moster", "lights_out"
         ]
       },
     ];
@@ -833,7 +985,8 @@
         groupId: "key",
         disableRift: false,
         disableProgress: false,
-        disableKnobs: false
+        disableKnobs: false,
+        floors: ["hotel"]
       },
       {
         id: "lock_most",
@@ -845,7 +998,8 @@
         disableRift: false,
         disableProgress: false,
         disableKnobs: false,
-        requirement: "Requires 'Not Five Stars'"
+        requirement: "Requires 'Not Five Stars'",
+        floors: ["hotel"]
       },
 
       {
@@ -1084,7 +1238,8 @@
         disableRift: false,
         disableProgress: false,
         disableKnobs: false,
-        requirement: "Requires 'See You Soon'"
+        requirement: "Requires 'See You Soon'",
+        floors: ["hotel"]
       },
 
       {
@@ -1120,7 +1275,8 @@
         groupId: null,
         disableRift: false,
         disableProgress: false,
-        disableKnobs: false
+        disableKnobs: false,
+        floors: ["hotel"]
       },
       {
         id: "screech_fast",
@@ -1226,8 +1382,24 @@
         disableRift: false,
         disableProgress: false,
         disableKnobs: false,
-        requirement: "Requires 'See You Soon'"
+        requirement: "Requires 'See You Soon'",
+        floors: ["hotel"]
       },
+      // CUSTOM MODIFIER START
+      {
+        id: "customidea:eyes_move",
+        name: "Sightseeing",
+        description: "Eyes move around the room like in Battle Mode.",
+        colorTemplate: "eyes",
+        knobPercent: 5,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        customModifierIdea: true,
+        requirement: "Requires 'Battler'"
+      },
+      // CUSTOM MODIFIER END
 
       {
         id: "figure_faster",
@@ -1288,8 +1460,25 @@
         disableRift: false,
         disableProgress: false,
         disableKnobs: false,
-        requirement: "Requires 'See You Soon'"
+        requirement: "Requires 'See You Soon'",
+        floors: ["hotel"]
       },
+
+      // CUSTOM MODIFIER START
+      {
+        id: "customidea:halt_faster",
+        name: "Roundabout",
+        description: "Halt is guaranteed to attack and moves significantly faster.",
+        colorTemplate: "halt",
+        knobPercent: 10,
+        groupId: null,
+        disableRift: false,
+        disableProgress: false,
+        disableKnobs: false,
+        customModifierIdea: true,
+        requirement: "Requires 'Two Steps Ahead'"
+      },
+      // CUSTOM MODIFIER END
 
       {
         id: "snare_more",
@@ -1300,7 +1489,8 @@
         groupId: "snare",
         disableRift: false,
         disableProgress: false,
-        disableKnobs: false
+        disableKnobs: false,
+        floors: ["hotel"]
       },
       {
         id: "snare_most",
@@ -1312,7 +1502,8 @@
         disableRift: false,
         disableProgress: false,
         disableKnobs: false,
-        requirement: "Requires 'Not Five Stars'"
+        requirement: "Requires 'Not Five Stars'",
+        floors: ["hotel"]
       },
       {
         id: "snare_moster",
@@ -1324,7 +1515,8 @@
         disableRift: false,
         disableProgress: false,
         disableKnobs: false,
-        requirement: "Requires 'Hotel Hell'"
+        requirement: "Requires 'Hotel Hell'",
+        floors: ["hotel"]
       },
 
       {
@@ -1602,7 +1794,14 @@
     }
 
     function shouldShowItem(item) {
+      // Check custom ideas toggle
       if (item.customModifierIdea && !showCustomIdeas) return false;
+
+      // Check floor compatibility
+      if (item.floors && Array.isArray(item.floors) && !item.floors.includes(selectedFloor)) {
+        return false;
+      }
+
       return true;
     }
 
@@ -1983,6 +2182,25 @@
       updateRestrictionBadge("Progress", isProgressDisabled, "Disabled", "Enabled");
       updateRestrictionBadge("Knobs", isKnobsDisabled, "Disabled", "Enabled");
 
+      const floorNameEl = document.getElementById("achievementFloorName");
+      if (floorNameEl) {
+        floorNameEl.textContent = selectedFloor === "hotel" ? "The Hotel" : "The Mines";
+      }
+
+      // Define achievement titles based on floor
+      const ach50Title = selectedFloor === "hotel" ? "Not Five Stars" : "Rocky Road";
+      const ach150Title = selectedFloor === "hotel" ? "Hotel Hell" : "A Hard Place";
+
+      document.getElementById("achieve50Name").textContent = ach50Title;
+      document.getElementById("achieve150Name").textContent = ach150Title;
+
+      // Progression locking check
+      const isEligible50 = !isProgressDisabled && totalKnobs >= 50;
+      const isEligible150 = !isProgressDisabled && totalKnobs >= 150;
+
+      updateAchievementBadge("50", isEligible50, isProgressDisabled, totalKnobs, 50);
+      updateAchievementBadge("150", isEligible150, isProgressDisabled, totalKnobs, 150);
+
       document.getElementById("selectedCount").textContent = selectedMods.length;
       const chipsContainer = document.getElementById("selectedChipsList");
 
@@ -1995,6 +2213,30 @@
             <span class="text-amber-400/60 group-hover:text-red-200 font-bold">✕</span>
           </span>
         `).join('');
+      }
+    }
+
+    /**
+     * Helper function to style achievement cards dynamically
+     */
+    function updateAchievementBadge(targetId, isEligible, isProgressDisabled, currentKnobs, requiredKnobs) {
+      const card = document.getElementById(`achieve${targetId}Card`);
+      const badge = document.getElementById(`achieve${targetId}Badge`);
+
+      if (!card || !badge) return;
+
+      if (isEligible) {
+        card.className = "p-2 rounded-lg border border-amber-500/80 bg-amber-950/70 text-amber-200 text-center flex flex-col items-center justify-center shadow-md";
+        badge.className = "mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-black shadow";
+        badge.textContent = "✓ UNLOCKED";
+      } else if (isProgressDisabled) {
+        card.className = "p-2 rounded-lg border border-red-900/60 bg-red-950/30 text-red-300/60 text-center flex flex-col items-center justify-center opacity-60";
+        badge.className = "mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-red-900/80 text-red-200";
+        badge.textContent = "🚫 NO PROGRESS";
+      } else {
+        card.className = "p-2 rounded-lg border border-stone-800 bg-stone-900/40 text-stone-400 text-center flex flex-col items-center justify-center opacity-75";
+        badge.className = "mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-stone-800 text-stone-400";
+        badge.textContent = `${currentKnobs}/${requiredKnobs}%`;
       }
     }
 
@@ -2040,13 +2282,19 @@
     function applyPreset(presetId) {
       selectedIds.clear();
       const preset = presets.find(p => p.id === presetId);
+
       if (preset && Array.isArray(preset.modifierIds)) {
         preset.modifierIds.forEach(id => {
-          if (modifiers.some(m => !m.divider && m.id === id)) {
+          const mod = modifiers.find(m => !m.divider && m.id === id);
+
+          // Only select if the modifier exists, is visible for the current floor/toggles, 
+          // and isn't locked by requirements (if enforced)
+          if (mod && shouldShowItem(mod) && (!enforceRequirements || !mod.requirement)) {
             selectedIds.add(id);
           }
         });
       }
+
       togglePresetModal(false);
       renderApp();
     }
