@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DOORS Modifier Helper</title>
+  <link rel="icon" type="image/png" href="https://static.wikitide.net/doorswiki/thumb/a/a3/Modifiers_icon.png/300px-Modifiers_icon.png">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -181,15 +182,20 @@
 
     <!-- Actions: Presets, Save/Load, & Clear All -->
     <div class="flex items-center flex-wrap gap-2">
-      <button onclick="clearAllSelections()" class="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-xl text-xs sm:text-sm font-semibold text-neutral-300 transition shadow flex items-center gap-1.5">
+      <button onclick="clearAllSelections()" class="px-3 py-1.5 bg-red-900 hover:bg-red-800 border border-red-700 rounded-xl text-xs sm:text-sm font-semibold text-red-300 transition shadow flex items-center gap-1.5">
         Clear All
       </button>
-      <button onclick="toggleFloorModal(true)" id="floorSelectBtn" class="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 border border-amber-700/70 rounded-xl text-xs sm:text-sm font-semibold text-amber-200 transition shadow flex items-center gap-1.5 font-doors-title tracking-wide uppercase">
-        Floor: The Hotel ▾
+      <div class="h-6 w-px bg-stone-700/80 mx-0.5"></div>
+      <button onclick="toggleRandomModal(true)" class="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 border border-amber-700/70 rounded-xl text-xs sm:text-sm font-semibold text-amber-200 transition shadow flex items-center gap-1.5">
+        Randomizer ▾
       </button>
       <button onclick="togglePresetModal(true)" class="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 border border-amber-700/70 rounded-xl text-xs sm:text-sm font-semibold text-amber-200 transition shadow flex items-center gap-1.5">
         Presets ▾
       </button>
+      <button onclick="toggleFloorModal(true)" id="floorSelectBtn" class="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 border border-amber-700/70 rounded-xl text-xs sm:text-sm font-semibold text-amber-200 transition shadow flex items-center gap-1.5">
+        Floor: The Hotel ▾
+      </button>
+      <div class="h-6 w-px bg-stone-700/80 mx-0.5"></div>
       <button onclick="saveToFile()" class="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 border border-stone-600 rounded-xl text-xs sm:text-sm font-semibold text-stone-200 transition shadow flex items-center gap-1">
         Save
       </button>
@@ -338,6 +344,75 @@
     </div>
   </main>
 
+  <!-- Random Selection Modal Pop-Up -->
+  <div id="randomModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="doors-modal w-full max-w-sm p-5 flex flex-col gap-3 text-center shadow-2xl relative max-h-[85vh]">
+      <div class="flex items-center justify-between border-b border-amber-900/40 pb-2">
+        <h3 class="text-xl font-bold font-doors-title text-amber-200 uppercase tracking-wide flex items-center gap-2">
+          Randomizer
+        </h3>
+        <button onclick="toggleRandomModal(false)" class="text-stone-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+
+      <p class="text-xs text-amber-200/70">Randomly select modifiers:</p>
+
+      <!-- Scrollable Button List -->
+      <div class="flex flex-col gap-2.5 my-2 max-h-[300px] overflow-y-auto pr-1">
+        <button onclick="selectRandomModifiers(1)" class="w-full py-3 px-4 bg-amber-950/80 hover:bg-amber-900 border border-amber-700/60 rounded-xl text-sm font-bold text-amber-200 transition flex items-center justify-between shadow group">
+          <span class="font-doors-title tracking-wide uppercase text-base">+1 Random Modifier</span>
+          <span class="text-xs bg-amber-900/60 px-2 py-0.5 rounded text-amber-300 border border-amber-700/40">Draw 1</span>
+        </button>
+
+        <button onclick="selectRandomModifiers(3)" class="w-full py-3 px-4 bg-amber-950/80 hover:bg-amber-900 border border-amber-700/60 rounded-xl text-sm font-bold text-amber-200 transition flex items-center justify-between shadow group">
+          <span class="font-doors-title tracking-wide uppercase text-base">+3 Random Modifiers</span>
+          <span class="text-xs bg-amber-900/60 px-2 py-0.5 rounded text-amber-300 border border-amber-700/40">Draw 3</span>
+        </button>
+
+        <button onclick="selectRandomModifiers(5)" class="w-full py-3 px-4 bg-amber-950/80 hover:bg-amber-900 border border-amber-700/60 rounded-xl text-sm font-bold text-amber-200 transition flex items-center justify-between shadow group">
+          <span class="font-doors-title tracking-wide uppercase text-base">+5 Random Modifiers</span>
+          <span class="text-xs bg-amber-900/60 px-2 py-0.5 rounded text-amber-300 border border-amber-700/40">Draw 5</span>
+        </button>
+
+        <button onclick="selectRandomModifiers(7)" class="w-full py-3 px-4 bg-amber-950/80 hover:bg-amber-900 border border-amber-700/60 rounded-xl text-sm font-bold text-amber-200 transition flex items-center justify-between shadow group">
+          <span class="font-doors-title tracking-wide uppercase text-base">+7 Random Modifiers</span>
+          <span class="text-xs bg-amber-900/60 px-2 py-0.5 rounded text-amber-300 border border-amber-700/40">Draw 7</span>
+        </button>
+
+        <button onclick="selectRandomModifiers(9)" class="w-full py-3 px-4 bg-amber-950/80 hover:bg-amber-900 border border-amber-700/60 rounded-xl text-sm font-bold text-amber-200 transition flex items-center justify-between shadow group">
+          <span class="font-doors-title tracking-wide uppercase text-base">+9 Random Modifiers</span>
+          <span class="text-xs bg-amber-900/60 px-2 py-0.5 rounded text-amber-300 border border-amber-700/40">Draw 9</span>
+        </button>
+      </div>
+
+      <button onclick="toggleRandomModal(false)" class="mt-1 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-semibold">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <!-- Presets Modal Pop-Up -->
+  <div id="presetModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="doors-modal w-full max-w-sm p-5 flex flex-col gap-3 text-center shadow-2xl relative max-h-[85vh]">
+      <div class="flex items-center justify-between border-b border-amber-900/40 pb-2">
+        <h3 class="text-xl font-bold font-doors-title text-amber-200 uppercase tracking-wide flex items-center gap-2">
+          Select Preset
+        </h3>
+        <button onclick="togglePresetModal(false)" class="text-stone-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+
+      <p class="text-xs text-amber-200/70">Choose a pre-configured set of DOORS modifiers:</p>
+
+      <!-- Scrollable Presets Container -->
+      <div id="presetsList" class="flex flex-col gap-2.5 my-1 max-h-[360px] overflow-y-auto pr-1">
+        <!-- Dynamically populated by JS from PRESETS array -->
+      </div>
+
+      <button onclick="togglePresetModal(false)" class="mt-1 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-semibold">
+        Close
+      </button>
+    </div>
+  </div>
+
   <!-- Floor Selection Modal Pop-Up -->
   <div id="floorModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="doors-modal w-full max-w-sm p-5 flex flex-col gap-3 text-center shadow-2xl relative">
@@ -371,29 +446,6 @@
       </div>
 
       <button onclick="toggleFloorModal(false)" class="mt-1 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-semibold">
-        Close
-      </button>
-    </div>
-  </div>
-
-  <!-- Presets Modal Pop-Up -->
-  <div id="presetModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="doors-modal w-full max-w-sm p-5 flex flex-col gap-3 text-center shadow-2xl relative max-h-[85vh]">
-      <div class="flex items-center justify-between border-b border-amber-900/40 pb-2">
-        <h3 class="text-xl font-bold font-doors-title text-amber-200 uppercase tracking-wide flex items-center gap-2">
-          Select Preset
-        </h3>
-        <button onclick="togglePresetModal(false)" class="text-stone-400 hover:text-white font-bold text-lg px-2">✕</button>
-      </div>
-
-      <p class="text-xs text-amber-200/70">Choose a pre-configured set of DOORS modifiers:</p>
-
-      <!-- Scrollable Presets Container -->
-      <div id="presetsList" class="flex flex-col gap-2.5 my-1 max-h-[360px] overflow-y-auto pr-1">
-        <!-- Dynamically populated by JS from PRESETS array -->
-      </div>
-
-      <button onclick="togglePresetModal(false)" class="mt-1 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs font-semibold">
         Close
       </button>
     </div>
@@ -441,6 +493,86 @@
 
       toggleFloorModal(false);
       renderApp();
+    }
+
+    /**
+     * Toggles visibility of the Random Selection Modal.
+     */
+    function toggleRandomModal(show) {
+      const modal = document.getElementById("randomModal");
+      if (!modal) return;
+      if (show) {
+        modal.classList.remove("hidden");
+      } else {
+        modal.classList.add("hidden");
+      }
+    }
+
+    /**
+     * Randomly selects up to `count` valid modifiers while strictly preventing:
+     * - Already selected modifiers (`selectedIds`)
+     * - Incompatible floor/custom idea choices (`shouldShowItem`)
+     * - Requirements-locked modifiers when enforced (`enforceRequirements`)
+     * - Duplicate selections within the same group (`groupId`)
+     */
+    function selectRandomModifiers(count) {
+      // 1. Identify all active group IDs currently in use
+      const currentlySelectedGroups = new Set();
+      modifiers.forEach(mod => {
+        if (!mod.divider && mod.groupId && selectedIds.has(mod.id)) {
+          currentlySelectedGroups.add(mod.groupId);
+        }
+      });
+
+      // 2. Filter down candidate pool against all requirements
+      const validCandidates = modifiers.filter(mod => {
+        // Skip dividers
+        if (mod.divider) return false;
+
+        // Floor compatibility and custom toggles check
+        if (!shouldShowItem(mod)) return false;
+
+        // Requirement lock enforcement check
+        if (enforceRequirements && mod.requirement) return false;
+
+        // Skip already active modifiers
+        if (selectedIds.has(mod.id)) return false;
+
+        // Skip if another modifier in the same group is already active
+        if (mod.groupId && currentlySelectedGroups.has(mod.groupId)) return false;
+
+        return true;
+      });
+
+      // 3. Shuffle candidate pool (Fisher-Yates Shuffle)
+      const pool = [...validCandidates];
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+
+      // 4. Draw up to `count` modifiers ensuring no two picked modifiers belong to the same group
+      let addedCount = 0;
+      const pickedGroupsInRun = new Set();
+
+      for (const mod of pool) {
+        if (addedCount >= count) break;
+
+        // Check if another candidate in this same group was already picked during this draw
+        if (mod.groupId && pickedGroupsInRun.has(mod.groupId)) {
+          continue;
+        }
+
+        selectedIds.add(mod.id);
+        if (mod.groupId) {
+          pickedGroupsInRun.add(mod.groupId);
+        }
+        addedCount++;
+      }
+
+      // 5. Refresh UI and close modal
+      renderApp();
+      toggleRandomModal(false);
     }
 
     const EASTER_EGG_CONFIG = {
